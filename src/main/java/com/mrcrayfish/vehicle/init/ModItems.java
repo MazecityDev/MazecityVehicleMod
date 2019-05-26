@@ -37,6 +37,10 @@ public class ModItems
     public static final Item SPORTS_PLANE_PROPELLER;
     public static final Item GOLF_CART_BODY;
     public static final Item OFF_ROADER_BODY;
+    public static final Item POLICE_ROADER_BODY;
+    public static final Item SAMU_ROADER_BODY;
+    public static final Item FIRE_ROADER_BODY;
+    public static final Item BEAUTIFUL_ROADER_BODY;
 
     public static final Item TRAILER_BODY;
     public static final Item TOW_BAR;
@@ -93,6 +97,10 @@ public class ModItems
         SPORTS_PLANE_PROPELLER = new ItemPart("sports_plane_propeller").setColored();
         GOLF_CART_BODY = new ItemPart("golf_cart_body").setColored();
         OFF_ROADER_BODY = new ItemPart("off_roader_body").setColored();
+        POLICE_ROADER_BODY = new ItemPart("police_roader_body").setColored();
+        SAMU_ROADER_BODY = new ItemPart("samu_roader_body").setColored();
+        FIRE_ROADER_BODY = new ItemPart("fire_roader_body").setColored();
+        BEAUTIFUL_ROADER_BODY = new ItemPart("beautiful_roader_body").setColored();
 
         TRAILER_BODY = new ItemPart("trailer_body").setColored();
         TOW_BAR = new ItemPart("tow_bar");
@@ -152,6 +160,10 @@ public class ModItems
         register(SPORTS_PLANE_PROPELLER);
         register(GOLF_CART_BODY);
         register(OFF_ROADER_BODY);
+        register(POLICE_ROADER_BODY);
+        register(SAMU_ROADER_BODY);
+        register(FIRE_ROADER_BODY);
+        register(BEAUTIFUL_ROADER_BODY);
 
         register(TRAILER_BODY);
         register(TOW_BAR);
