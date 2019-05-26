@@ -2,8 +2,8 @@ package com.mrcrayfish.vehicle.client;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mrcrayfish.controllable.Controllable;
 import com.mrcrayfish.vehicle.VehicleConfig;
+import com.mrcrayfish.vehicle.common.CommonEvents;
 import com.mrcrayfish.vehicle.common.entity.PartPosition;
 import com.mrcrayfish.vehicle.entity.EntityPoweredVehicle;
 import com.mrcrayfish.vehicle.entity.EntityVehicle;
@@ -16,7 +16,6 @@ import com.mrcrayfish.vehicle.network.PacketHandler;
 import com.mrcrayfish.vehicle.network.message.MessageFuelVehicle;
 import com.mrcrayfish.vehicle.network.message.MessageInteractKey;
 import com.mrcrayfish.vehicle.network.message.MessagePickupVehicle;
-import com.mrcrayfish.vehicle.proxy.ClientProxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -46,7 +45,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
@@ -163,21 +161,39 @@ public class EntityRaytracer
      */
     public static final Function<RayTraceResultRotated, EnumHand> FUNCTION_FUELING = (rayTraceResult) ->
     {
-        for (EnumHand hand : EnumHand.values())
+        EntityPlayer player = Minecraft.getMinecraft().player;
+        if(player.getDataManager().get(CommonEvents.GAS_PUMP).isPresent() && ControllerEvents.isRightClicking())
+        {
+            Entity entity = rayTraceResult.entityHit;
+            if(entity instanceof EntityPoweredVehicle)
+            {
+                EntityPoweredVehicle poweredVehicle = (EntityPoweredVehicle) entity;
+                if(poweredVehicle.requiresFuel() && poweredVehicle.getCurrentFuel() < poweredVehicle.getFuelCapacity())
+                {
+                    if(continuousInteractionTickCounter % 2 == 0)
+                    {
+                        PacketHandler.INSTANCE.sendToServer(new MessageFuelVehicle(Minecraft.getMinecraft().player, EnumHand.MAIN_HAND, rayTraceResult.entityHit));
+                    }
+                    return EnumHand.MAIN_HAND;
+                }
+            }
+        }
+
+        for(EnumHand hand : EnumHand.values())
         {
             ItemStack stack = Minecraft.getMinecraft().player.getHeldItem(hand);
-            if (!stack.isEmpty() && stack.getItem() instanceof ItemJerryCan && ControllerEvents.isRightClicking())
+            if(!stack.isEmpty() && stack.getItem() instanceof ItemJerryCan && ControllerEvents.isRightClicking())
             {
                 Entity entity = rayTraceResult.entityHit;
-                if (entity instanceof EntityPoweredVehicle)
+                if(entity instanceof EntityPoweredVehicle)
                 {
                     EntityPoweredVehicle poweredVehicle = (EntityPoweredVehicle) entity;
-                    if (poweredVehicle.requiresFuel() && poweredVehicle.getCurrentFuel() < poweredVehicle.getFuelCapacity())
+                    if(poweredVehicle.requiresFuel() && poweredVehicle.getCurrentFuel() < poweredVehicle.getFuelCapacity())
                     {
                         int fuel = ((ItemJerryCan) stack.getItem()).getCurrentFuel(stack);
-                        if (fuel > 0)
+                        if(fuel > 0)
                         {
-                            if (continuousInteractionTickCounter % 2 == 0)
+                            if(continuousInteractionTickCounter % 2 == 0)
                             {
                                 PacketHandler.INSTANCE.sendToServer(new MessageFuelVehicle(Minecraft.getMinecraft().player, hand, entity));
                             }
@@ -406,6 +422,19 @@ public class EntityRaytracer
         createFuelablePartTransforms(ModItems.FUEL_PORT_CLOSED, EntityOffRoader.class, offRoaderParts, offRoaderTransformGlobal);
         createKeyPortTransforms(ModItems.KEY_PORT, EntityOffRoader.class, offRoaderParts, offRoaderTransformGlobal);
         registerEntityStatic(EntityOffRoader.class, offRoaderParts);
+
+        List<MatrixTransformation> tractorTransformGlobal = Lists.newArrayList();
+        createBodyTransforms(tractorTransformGlobal, EntityTractor.class);
+        HashMap<RayTracePart, List<MatrixTransformation>> tractorParts = Maps.newHashMap();
+        createTransformListForPart(ModItems.TRACTOR_BODY, tractorParts, tractorTransformGlobal);
+        createTransformListForPart(ModItems.GO_KART_STEERING_WHEEL, tractorParts, tractorTransformGlobal,
+                MatrixTransformation.createTranslation(0, 0.66, -0.475),
+                MatrixTransformation.createRotation(-67.5F, 1, 0, 0),
+                MatrixTransformation.createTranslation(0, -0.02, 0),
+                MatrixTransformation.createScale(0.9));
+        createFuelablePartTransforms(ModItems.FUEL_PORT_CLOSED, EntityTractor.class, tractorParts, tractorTransformGlobal);
+        createKeyPortTransforms(ModItems.KEY_PORT, EntityTractor.class, tractorParts, tractorTransformGlobal);
+        registerEntityStatic(EntityTractor.class, tractorParts);
 
         if(Loader.isModLoaded("cfm"))
         {

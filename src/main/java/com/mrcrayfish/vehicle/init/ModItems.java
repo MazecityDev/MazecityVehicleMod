@@ -41,6 +41,7 @@ public class ModItems
     public static final Item SAMU_ROADER_BODY;
     public static final Item FIRE_ROADER_BODY;
     public static final Item BEAUTIFUL_ROADER_BODY;
+    public static final Item TRACTOR_BODY;
 
     public static final Item TRAILER_BODY;
     public static final Item TOW_BAR;
@@ -78,7 +79,7 @@ public class ModItems
         DUNE_BUGGY_HANDLE_BAR = new ItemPart("dune_buggy_handle_bar");
         GO_KART_BODY = new ItemPart("go_kart_body").setColored();
         GO_KART_STEERING_WHEEL = new ItemPart("go_kart_steering_wheel");
-        SHOPPING_CART_BODY = new ItemPart("shopping_cart_body");
+        SHOPPING_CART_BODY = new ItemPart("shopping_cart_body").setColored();
         MINI_BIKE_BODY = new ItemPart("mini_bike_body").setColored();
         MINI_BIKE_HANDLE_BAR = new ItemPart("mini_bike_handle_bar").setColored();
         BUMPER_CAR_BODY = new ItemPart("bumper_car_body").setColored();
@@ -101,6 +102,7 @@ public class ModItems
         SAMU_ROADER_BODY = new ItemPart("samu_roader_body").setColored();
         FIRE_ROADER_BODY = new ItemPart("fire_roader_body").setColored();
         BEAUTIFUL_ROADER_BODY = new ItemPart("beautiful_roader_body").setColored();
+        TRACTOR_BODY = new ItemPart("tractor_body").setColored();
 
         TRAILER_BODY = new ItemPart("trailer_body").setColored();
         TOW_BAR = new ItemPart("tow_bar");
@@ -164,6 +166,7 @@ public class ModItems
         register(SAMU_ROADER_BODY);
         register(FIRE_ROADER_BODY);
         register(BEAUTIFUL_ROADER_BODY);
+        register(TRACTOR_BODY);
 
         register(TRAILER_BODY);
         register(TOW_BAR);

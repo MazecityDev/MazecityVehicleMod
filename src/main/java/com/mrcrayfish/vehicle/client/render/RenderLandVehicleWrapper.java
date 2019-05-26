@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.util.math.Vec3d;
+import org.lwjgl.opengl.GL11;
 
 /**
  * Author: MrCrayfish
@@ -27,9 +28,6 @@ public class RenderLandVehicleWrapper<T extends EntityLandVehicle & EntityRaytra
 
         GlStateManager.pushMatrix();
         {
-            //Enable the standard item lighting so vehicles render correctly
-            RenderHelper.enableStandardItemLighting();
-
             VehicleProperties properties = entity.getProperties();
 
             //Apply vehicle rotations and translations. This is applied to all other parts
@@ -139,14 +137,14 @@ public class RenderLandVehicleWrapper<T extends EntityLandVehicle & EntityRaytra
                 if(wheel.getPosition() == Wheel.Position.FRONT)
                 {
                     float wheelAngle = vehicle.prevRenderWheelAngle + (vehicle.renderWheelAngle - vehicle.prevRenderWheelAngle) * partialTicks;
-                    GlStateManager.rotate(wheelAngle, 0, 1, 0);
+                    GlStateManager.rotate(wheelAngle / 2.0F, 0, 1, 0);
                 }
                 if(vehicle.isMoving())
                 {
                     GlStateManager.rotate(-wheel.getWheelRotation(vehicle, partialTicks), 1, 0, 0);
                 }
-                GlStateManager.translate((((wheel.getWidth() * wheel.getScale()) / 2) * 0.0625) * wheel.getSide().offset, 0, 0);
-                GlStateManager.scale(wheel.getScale(), wheel.getScale(), wheel.getScale());
+                GlStateManager.translate((((wheel.getWidth() * wheel.getScaleX()) / 2) * 0.0625) * wheel.getSide().offset, 0, 0);
+                GlStateManager.scale(wheel.getScaleX(), wheel.getScaleY(), wheel.getScaleZ());
                 if(wheel.getSide() == Wheel.Side.RIGHT)
                 {
                     GlStateManager.rotate(180F, 0, 1, 0);

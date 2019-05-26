@@ -12,7 +12,6 @@ import com.mrcrayfish.vehicle.client.render.VehicleRenderRegistry;
 import com.mrcrayfish.vehicle.common.CommonEvents;
 import com.mrcrayfish.vehicle.entity.EntityPoweredVehicle;
 import com.mrcrayfish.vehicle.entity.EntityVehicle;
-import com.mrcrayfish.vehicle.entity.vehicle.EntityAluminumBoat;
 import com.mrcrayfish.vehicle.init.ModBlocks;
 import com.mrcrayfish.vehicle.init.ModItems;
 import com.mrcrayfish.vehicle.init.ModSounds;
@@ -20,6 +19,7 @@ import com.mrcrayfish.vehicle.item.ItemSprayCan;
 import com.mrcrayfish.vehicle.network.PacketHandler;
 import com.mrcrayfish.vehicle.network.message.MessageHitchTrailer;
 import com.mrcrayfish.vehicle.tileentity.TileEntityFluidPipe;
+import com.mrcrayfish.vehicle.util.RenderUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -32,6 +32,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -39,10 +40,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
@@ -69,10 +67,11 @@ public class ClientEvents
 {
     private int lastSlot = -1;
     private int originalPerspective = -1;
-    private double jerryCanMainHandOffset;
+    private double fuelingHandOffset;
     private int tickCounter;
     private boolean fueling;
     private double offsetPrev, offsetPrevPrev;
+    private boolean shouldRenderNozzle;
 
     @SubscribeEvent
     public void onEntityMount(EntityMountEvent event)
@@ -163,26 +162,18 @@ public class ClientEvents
     public void onPreRender(ModelPlayerEvent.Render.Pre event)
     {
         EntityPlayer player = event.getEntityPlayer();
-        Entity ridingEntity = event.getEntityPlayer().getRidingEntity();
-
-        if(ridingEntity != null && ridingEntity instanceof EntityVehicle)
+        Entity ridingEntity = player.getRidingEntity();
+        if(ridingEntity instanceof EntityVehicle)
         {
             EntityVehicle vehicle = (EntityVehicle) ridingEntity;
             /* Suppressed due to warning however it's safe to say cast won't throw an exception
-             * due to the registration process of vehicle renders */
+             * due to the strict registration process of vehicle renders */
             @SuppressWarnings("unchecked")
             AbstractRenderVehicle<EntityVehicle> render = (AbstractRenderVehicle<EntityVehicle>) VehicleRenderRegistry.getRender(vehicle.getClass());
             if(render != null)
             {
                 render.applyPlayerRender(vehicle, player, event.getPartialTicks());
-                return;
             }
-        }
-
-        if(ridingEntity instanceof EntityAluminumBoat)
-        {
-            EntityPoweredVehicle vehicle = (EntityPoweredVehicle) ridingEntity;
-
         }
     }
 
@@ -196,6 +187,24 @@ public class ClientEvents
 
         Entity ridingEntity = player.getRidingEntity();
         ModelPlayer model = event.getModelPlayer();
+
+        if(player.getDataManager().get(CommonEvents.GAS_PUMP).isPresent())
+        {
+            boolean rightHanded = player.getPrimaryHand() == EnumHandSide.RIGHT;
+            if(rightHanded)
+            {
+                model.bipedRightArm.rotateAngleX = (float) Math.toRadians(-20F);
+                model.bipedRightArm.rotateAngleY = (float) Math.toRadians(0F);
+                model.bipedRightArm.rotateAngleZ = (float) Math.toRadians(0F);
+            }
+            else
+            {
+                model.bipedLeftArm.rotateAngleX = (float) Math.toRadians(-20F);
+                model.bipedLeftArm.rotateAngleY = (float) Math.toRadians(0F);
+                model.bipedLeftArm.rotateAngleZ = (float) Math.toRadians(0F);
+            }
+            return;
+        }
 
         if(!player.isRiding())
         {
@@ -289,11 +298,12 @@ public class ClientEvents
     @SubscribeEvent
     public void onRenderHand(RenderSpecificHandEvent event)
     {
-        if (event.getHand() == EnumHand.OFF_HAND && jerryCanMainHandOffset > -1)
+        if (event.getHand() == EnumHand.OFF_HAND && fuelingHandOffset > -1)
         {
             GlStateManager.rotate(25F, 1, 0, 0);
-            GlStateManager.translate(0, -0.35 - jerryCanMainHandOffset, 0.2);
+            GlStateManager.translate(0, -0.35 - fuelingHandOffset, 0.2);
         }
+
         if(!event.getItemStack().isEmpty() && event.getItemStack().getItem() instanceof ItemSprayCan && event.getItemStack().getMetadata() == 0)
         {
             ItemStack stack = event.getItemStack().copy();
@@ -301,7 +311,8 @@ public class ClientEvents
             Minecraft.getMinecraft().getItemRenderer().renderItemInFirstPerson(Minecraft.getMinecraft().player, event.getPartialTicks(), event.getInterpolatedPitch(), event.getHand(), event.getSwingProgress(), stack, event.getEquipProgress());
             event.setCanceled(true);
         }
-        jerryCanMainHandOffset = -1;
+
+        fuelingHandOffset = -1;
         RayTraceResultRotated result = EntityRaytracer.getContinuousInteraction();
         if (result != null && result.equalsContinuousInteraction(EntityRaytracer.FUNCTION_FUELING) && event.getHand() == EntityRaytracer.getContinuousInteractionObject())
         {
@@ -316,20 +327,90 @@ public class ClientEvents
             GlStateManager.rotate(-25F, 1, 0, 0);
             if (event.getHand() == EnumHand.MAIN_HAND)
             {
-                jerryCanMainHandOffset = offset;
+                fuelingHandOffset = offset;
             }
+        }
+
+        EntityPlayer player = Minecraft.getMinecraft().player;
+        if(player.getDataManager().get(CommonEvents.GAS_PUMP).isPresent())
+        {
+            if(event.getSwingProgress() > 0)
+            {
+                shouldRenderNozzle = true;
+            }
+            if(event.getHand() == EnumHand.MAIN_HAND && shouldRenderNozzle)
+            {
+                if(event.getSwingProgress() > 0 && event.getSwingProgress() <= 0.25) return;
+                GlStateManager.pushMatrix();
+                boolean mainHand = event.getHand() == EnumHand.MAIN_HAND;
+                EnumHandSide handSide = mainHand ? player.getPrimaryHand() : player.getPrimaryHand().opposite();
+                float f = -0.6F * MathHelper.sin(MathHelper.sqrt(event.getSwingProgress()) * (float) Math.PI);
+                float f1 = 0.2F * MathHelper.sin(MathHelper.sqrt(event.getSwingProgress()) * ((float) Math.PI * 2F));
+                float f2 = -0.2F * MathHelper.sin(event.getSwingProgress() * (float) Math.PI);
+                int handOffset = handSide == EnumHandSide.RIGHT ? 1 : -1;
+                GlStateManager.translate((float) handOffset * f, f1, f2);
+                GlStateManager.translate((float) handOffset * 0.65F, -0.52F + 0.25F, -0.72F);
+                GlStateManager.rotate(45F, 1, 0, 0);
+                RenderUtil.renderItemModel(new ItemStack(ModItems.MODELS), Models.NOZZLE.getModel(), ItemCameraTransforms.TransformType.NONE);
+                GlStateManager.popMatrix();
+                event.setCanceled(true);
+            }
+        }
+        else
+        {
+            shouldRenderNozzle = false;
         }
     }
 
     @SubscribeEvent
     public void onRenderThirdPerson(RenderItemEvent.Held.Pre event)
     {
+        Entity entity = event.getEntity();
+        if(entity instanceof EntityPlayer && entity.getDataManager().get(CommonEvents.GAS_PUMP).isPresent())
+        {
+            event.setCanceled(true);
+            return;
+        }
+
         if(!event.getItem().isEmpty() && event.getItem().getItem() instanceof ItemSprayCan && event.getItem().getMetadata() == 0)
         {
             ItemStack stack = event.getItem().copy();
             stack.setItemDamage(1);
             Minecraft.getMinecraft().getItemRenderer().renderItemSide(event.getEntity(), stack, event.getTransformType(), event.getHandSide() == EnumHandSide.LEFT);
             event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onModelRenderPost(ModelPlayerEvent.Render.Post event)
+    {
+        EntityPlayer entity = event.getEntityPlayer();
+        if(entity.getDataManager().get(CommonEvents.GAS_PUMP).isPresent())
+        {
+            GlStateManager.pushMatrix();
+            {
+                if(event.getModelPlayer().isChild)
+                {
+                    GlStateManager.translate(0.0F, 0.75F, 0.0F);
+                    GlStateManager.scale(0.5F, 0.5F, 0.5F);
+                }
+                GlStateManager.pushMatrix();
+                {
+                    if(entity.isSneaking())
+                    {
+                        GlStateManager.translate(0.0F, 0.2F, 0.0F);
+                    }
+                    event.getModelPlayer().postRenderArm(0.0625F, entity.getPrimaryHand());
+                    GlStateManager.rotate(180F, 1, 0, 0);
+                    GlStateManager.rotate(180F, 0, 1, 0);
+                    boolean leftHanded = entity.getPrimaryHand() == EnumHandSide.LEFT;
+                    GlStateManager.translate((float) (leftHanded ? -1 : 1) / 16.0F, 0.125F, -0.625F);
+                    GlStateManager.translate(0, -9 * 0.0625F, 5.75 * 0.0625F);
+                    RenderUtil.renderItemModel(new ItemStack(ModItems.MODELS), Models.NOZZLE.getModel(), ItemCameraTransforms.TransformType.NONE);
+                }
+                GlStateManager.popMatrix();
+            }
+            GlStateManager.popMatrix();
         }
     }
 

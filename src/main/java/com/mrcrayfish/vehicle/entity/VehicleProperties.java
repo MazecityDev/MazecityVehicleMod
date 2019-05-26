@@ -167,6 +167,7 @@ public class VehicleProperties
         properties.setHeldOffset(new Vec3d(6.0, 0.0, 0.0));
         properties.setTrailerOffset(new Vec3d(0.0, -0.0625, -0.5));
         properties.addWheel(Wheel.Side.NONE, Wheel.Position.REAR, 0.0F, -6.7F, 1.65F, true, true);
+        properties.addWheel(Wheel.Side.NONE, Wheel.Position.FRONT, 0.0F, -0.5F + 1.7F * 0.0625F, 13.0F, 1.65F, true, false);
         VehicleProperties.setProperties(EntityMiniBike.class, properties);
 
         /* Moped */
@@ -178,6 +179,7 @@ public class VehicleProperties
         properties.setHeldOffset(new Vec3d(7.0, 2.0, 0.0));
         properties.setTrailerOffset(new Vec3d(0.0, -0.03125, -0.65));
         properties.addWheel(Wheel.Side.NONE, Wheel.Position.REAR, 0.0F, -6.7F, 1.5F, true, true);
+        properties.addWheel(Wheel.Side.NONE, Wheel.Position.FRONT, 0.0F, -0.4F, 14.5F, 1.3F, true, false);
         VehicleProperties.setProperties(EntityMoped.class, properties);
 
         /* Off Roader */
@@ -300,6 +302,22 @@ public class VehicleProperties
         properties.setKeyPortPosition(new PartPosition(0, 3.75, 12.5, -67.5, 0, 0, 0.5));
         VehicleProperties.setProperties(EntitySportsPlane.class, properties);
 
+        /* Tractor */
+        properties = new VehicleProperties();
+        properties.setAxleOffset(-3.0F);
+        properties.setWheelOffset(5.5F);
+        properties.setBodyPosition(new PartPosition(0, 0, 0.25, 0, 0, 0, 1.0));
+        properties.setEnginePosition(new PartPosition(0, 6, 8.775, 0, 0, 0, 0.85));
+        properties.setFuelPortPosition(new PartPosition(-6.25, 9.5, -1.75, 0, -90, 0, 0.3));
+        properties.setKeyPortPosition(new PartPosition(0, 7, 6.2, -67.5, 0, 0, 0.5));
+        properties.setHeldOffset(new Vec3d(0.0, 3.5, 0.0));
+        properties.setTowBarPosition(new Vec3d(0.0, 0.0, -24.5));
+        properties.addWheel(Wheel.Side.LEFT, Wheel.Position.FRONT, 8.0F, 0.0F, 14.0F, 1.5F, 2.25F, 2.25F, true, true);
+        properties.addWheel(Wheel.Side.RIGHT, Wheel.Position.FRONT, 8.0F, 0.0F, 14.0F, 1.5F, 2.25F, 2.25F, true, true);
+        properties.addWheel(Wheel.Side.LEFT, Wheel.Position.REAR, 8.0F, 5.5F, -14.5F, 3.0F, 4.5F, 4.5F, true, true);
+        properties.addWheel(Wheel.Side.RIGHT, Wheel.Position.REAR, 8.0F, 5.5F, -14.5F, 3.0F, 4.5F, 4.5F, true, true);
+        VehicleProperties.setProperties(EntityTractor.class, properties);
+
         /* Fertilizer Trailer */
         properties = new VehicleProperties();
         properties.setBodyPosition(new PartPosition(0.0, 0.325, 0.0, 0.0, 0.0, 0.0, 1.1));
@@ -398,7 +416,7 @@ public class VehicleProperties
         {
             wheels = new ArrayList<>();
         }
-        wheels.add(new Wheel(side, position, 2.0F, scale, offsetX, 0F, offsetZ, particles, render));
+        wheels.add(new Wheel(side, position, 2.0F, scale, scale, scale, offsetX, 0F, offsetZ, particles, render));
     }
 
     public void addWheel(Wheel.Side side, Wheel.Position position, float offsetX, float offsetY, float offsetZ, float scale, boolean particles, boolean render)
@@ -407,13 +425,34 @@ public class VehicleProperties
         {
             wheels = new ArrayList<>();
         }
-        wheels.add(new Wheel(side, position, 2.0F, scale, offsetX, offsetY, offsetZ, particles, render));
+        wheels.add(new Wheel(side, position, 2.0F, scale, scale, scale, offsetX, offsetY, offsetZ, particles, render));
+    }
+
+    public void addWheel(Wheel.Side side, Wheel.Position position, float offsetX, float offsetY, float offsetZ, float scaleX, float scaleY, float scaleZ, boolean particles, boolean render)
+    {
+        if(wheels == null)
+        {
+            wheels = new ArrayList<>();
+        }
+        wheels.add(new Wheel(side, position, 2.0F, scaleX, scaleY, scaleZ, offsetX, offsetY, offsetZ, particles, render));
     }
 
     @Nullable
     public List<Wheel> getWheels()
     {
         return wheels;
+    }
+
+    @Nullable
+    public Wheel getFirstFrontWheel()
+    {
+        return wheels.stream().filter(wheel -> wheel.getPosition() == Wheel.Position.FRONT).findFirst().orElse(null);
+    }
+
+    @Nullable
+    public Wheel getFirstRearWheel()
+    {
+        return wheels.stream().filter(wheel -> wheel.getPosition() == Wheel.Position.REAR).findFirst().orElse(null);
     }
 
     public void setBodyPosition(PartPosition bodyPosition)
@@ -439,11 +478,12 @@ public class VehicleProperties
     public void setFuelPortPosition(PartPosition fuelPortPosition)
     {
         this.fuelPortPosition = fuelPortPosition;
-        this.fuelPortLidPosition = new PartPosition(fuelPortPosition.getX(),
+        this.fuelPortLidPosition = new PartPosition(
+                fuelPortPosition.getX() - 6 * fuelPortPosition.getScale(),
                 fuelPortPosition.getY(),
-                fuelPortPosition.getZ(),
+                fuelPortPosition.getZ() - 5 * fuelPortPosition.getScale(),
                 fuelPortPosition.getRotX(),
-                fuelPortPosition.getRotY() - 110,
+                fuelPortPosition.getRotY() - 90,
                 fuelPortPosition.getRotZ(),
                 fuelPortPosition.getScale());
     }

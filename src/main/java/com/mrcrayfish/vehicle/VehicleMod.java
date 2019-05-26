@@ -120,6 +120,7 @@ public class VehicleMod
         registerVehicle("samu_roader", EntitySamuRoader.class);
         registerVehicle("fire_roader", EntityFireRoader.class);
         registerVehicle("beautiful_roader", EntityBeautifulRoader.class);
+        registerVehicle("tractor", EntityTractor.class);
 
         if(Loader.isModLoaded("cfm"))
         {
