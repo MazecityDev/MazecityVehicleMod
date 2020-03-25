@@ -98,7 +98,7 @@ public class ModItems
         SPORTS_PLANE_PROPELLER = new ItemPart("sports_plane_propeller").setColored();
         GOLF_CART_BODY = new ItemPart("golf_cart_body").setColored();
         OFF_ROADER_BODY = new ItemPart("off_roader_body").setColored();
-        POLICE_ROADER_BODY = new ItemPart("police_roader_body").setColored();
+        POLICE_ROADER_BODY = new ItemPart("raid_roader_body").setColored();
         SAMU_ROADER_BODY = new ItemPart("samu_roader_body").setColored();
         FIRE_ROADER_BODY = new ItemPart("fire_roader_body").setColored();
         BEAUTIFUL_ROADER_BODY = new ItemPart("beautiful_roader_body").setColored();

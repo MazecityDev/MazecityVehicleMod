@@ -11,6 +11,8 @@ public class ModSounds
 {
     public static SoundEvent hornMono;
     public static SoundEvent hornStereo;
+    public static SoundEvent policeMono;
+    public static SoundEvent policeStereo;
     public static SoundEvent atvEngineMono;
     public static SoundEvent atvEngineStereo;
     public static SoundEvent goKartEngineMono;
@@ -49,6 +51,8 @@ public class ModSounds
     {
         hornMono = registerSound("horn_mono");
         hornStereo = registerSound("horn_stereo");
+        policeMono = registerSound("police_mono");
+        policeStereo = registerSound("police_Stereo");
         atvEngineMono = registerSound("atv_engine_mono");
         atvEngineStereo = registerSound("atv_engine_stereo");
         goKartEngineMono = registerSound("go_kart_engine_mono");

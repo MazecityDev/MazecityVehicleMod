@@ -423,6 +423,63 @@ public class EntityRaytracer
         createKeyPortTransforms(ModItems.KEY_PORT, EntityOffRoader.class, offRoaderParts, offRoaderTransformGlobal);
         registerEntityStatic(EntityOffRoader.class, offRoaderParts);
 
+        // Police-Roader
+        List<MatrixTransformation> PoliceRoaderTransformGlobal = Lists.newArrayList();
+        createBodyTransforms(PoliceRoaderTransformGlobal, EntityPoliceRoader.class);
+        HashMap<RayTracePart, List<MatrixTransformation>> PoliceRoaderParts = Maps.newHashMap();
+        createTransformListForPart(ModItems.POLICE_ROADER_BODY, PoliceRoaderParts, PoliceRoaderTransformGlobal);
+        createTransformListForPart(ModItems.GO_KART_STEERING_WHEEL, PoliceRoaderParts, PoliceRoaderTransformGlobal,
+                MatrixTransformation.createTranslation(-0.3125, 0.35, 0.2),
+                MatrixTransformation.createRotation(-45, 1, 0, 0),
+                MatrixTransformation.createTranslation(0, -0.02, 0),
+                MatrixTransformation.createScale(0.75));
+        createFuelablePartTransforms(ModItems.FUEL_PORT_CLOSED, EntityPoliceRoader.class, PoliceRoaderParts, PoliceRoaderTransformGlobal);
+        createKeyPortTransforms(ModItems.KEY_PORT, EntityPoliceRoader.class, PoliceRoaderParts, PoliceRoaderTransformGlobal);
+        registerEntityStatic(EntityPoliceRoader.class, PoliceRoaderParts);
+
+        // Samu-Roader
+        List<MatrixTransformation> SamuRoaderTransformGlobal = Lists.newArrayList();
+        createBodyTransforms(SamuRoaderTransformGlobal, EntitySamuRoader.class);
+        HashMap<RayTracePart, List<MatrixTransformation>> SamuRoaderParts = Maps.newHashMap();
+        createTransformListForPart(ModItems.SAMU_ROADER_BODY, SamuRoaderParts, SamuRoaderTransformGlobal);
+        createTransformListForPart(ModItems.GO_KART_STEERING_WHEEL, SamuRoaderParts, SamuRoaderTransformGlobal,
+                MatrixTransformation.createTranslation(-0.3125, 0.35, 0.2),
+                MatrixTransformation.createRotation(-45, 1, 0, 0),
+                MatrixTransformation.createTranslation(0, -0.02, 0),
+                MatrixTransformation.createScale(0.75));
+        createFuelablePartTransforms(ModItems.FUEL_PORT_CLOSED, EntitySamuRoader.class, SamuRoaderParts, SamuRoaderTransformGlobal);
+        createKeyPortTransforms(ModItems.KEY_PORT, EntitySamuRoader.class, SamuRoaderParts, SamuRoaderTransformGlobal);
+        registerEntityStatic(EntitySamuRoader.class, SamuRoaderParts);
+
+        // Fire-Roader
+        List<MatrixTransformation> FireRoaderTransformGlobal = Lists.newArrayList();
+        createBodyTransforms(FireRoaderTransformGlobal, EntityFireRoader.class);
+        HashMap<RayTracePart, List<MatrixTransformation>> FireRoaderParts = Maps.newHashMap();
+        createTransformListForPart(ModItems.FIRE_ROADER_BODY, FireRoaderParts, FireRoaderTransformGlobal);
+        createTransformListForPart(ModItems.GO_KART_STEERING_WHEEL, FireRoaderParts, FireRoaderTransformGlobal,
+                MatrixTransformation.createTranslation(-0.3125, 0.35, 0.2),
+                MatrixTransformation.createRotation(-45, 1, 0, 0),
+                MatrixTransformation.createTranslation(0, -0.02, 0),
+                MatrixTransformation.createScale(0.75));
+        createFuelablePartTransforms(ModItems.FUEL_PORT_CLOSED, EntityFireRoader.class, FireRoaderParts, FireRoaderTransformGlobal);
+        createKeyPortTransforms(ModItems.KEY_PORT, EntityFireRoader.class, FireRoaderParts, FireRoaderTransformGlobal);
+        registerEntityStatic(EntityFireRoader.class, FireRoaderParts);
+
+        // Beautiful-Roader
+        List<MatrixTransformation> BeautifulRoaderTransformGlobal = Lists.newArrayList();
+        createBodyTransforms(BeautifulRoaderTransformGlobal, EntityBeautifulRoader.class);
+        HashMap<RayTracePart, List<MatrixTransformation>> BeautifulRoaderParts = Maps.newHashMap();
+        createTransformListForPart(ModItems.BEAUTIFUL_ROADER_BODY, BeautifulRoaderParts, BeautifulRoaderTransformGlobal);
+        createTransformListForPart(ModItems.GO_KART_STEERING_WHEEL, BeautifulRoaderParts, BeautifulRoaderTransformGlobal,
+                MatrixTransformation.createTranslation(-0.3125, 0.35, 0.2),
+                MatrixTransformation.createRotation(-45, 1, 0, 0),
+                MatrixTransformation.createTranslation(0, -0.02, 0),
+                MatrixTransformation.createScale(0.75));
+        createFuelablePartTransforms(ModItems.FUEL_PORT_CLOSED, EntityBeautifulRoader.class, BeautifulRoaderParts, BeautifulRoaderTransformGlobal);
+        createKeyPortTransforms(ModItems.KEY_PORT, EntityBeautifulRoader.class, BeautifulRoaderParts, BeautifulRoaderTransformGlobal);
+        registerEntityStatic(EntityBeautifulRoader.class, BeautifulRoaderParts);
+
+        // Tractor
         List<MatrixTransformation> tractorTransformGlobal = Lists.newArrayList();
         createBodyTransforms(tractorTransformGlobal, EntityTractor.class);
         HashMap<RayTracePart, List<MatrixTransformation>> tractorParts = Maps.newHashMap();

@@ -5,6 +5,12 @@
     "horn_stereo": {
         "sounds": [ {"name": "vehicle:horn_stereo"}]
     },
+    "police_mono": {
+        "sounds": [ {"name": "vehicle:police_mono"}]
+    },
+    "police_stereo": {
+        "sounds": [ {"name": "vehicle:police_stereo"}]
+    },
     "atv_engine_mono": {
         "sounds": [ {"name": "vehicle:atv_engine_mono"}]
     },

@@ -136,7 +136,7 @@ public class CommonEvents
 
     public static boolean pickUpVehicle(World world, EntityPlayer player, EnumHand hand, Entity targetEntity)
     {
-        if(hand == EnumHand.MAIN_HAND && !world.isRemote && player.isSneaking() && !player.isSpectator() && VehicleConfig.SERVER.pickUpVehicles)
+        if(hand == EnumHand.MAIN_HAND && !world.isRemote && player.isSneaking() && player.isCreative() && !player.isSpectator() && VehicleConfig.SERVER.pickUpVehicles)
         {
             if(player.getDataManager().get(HELD_VEHICLE).hasNoTags())
             {
