@@ -1,15 +1,11 @@
 package com.mrcrayfish.vehicle.client.gui;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mrcrayfish.vehicle.VehicleConfig;
 import com.mrcrayfish.vehicle.common.container.ContainerWorkstation;
 import com.mrcrayfish.vehicle.common.entity.PartPosition;
 import com.mrcrayfish.vehicle.crafting.VehicleRecipes;
 import com.mrcrayfish.vehicle.entity.*;
-import com.mrcrayfish.vehicle.entity.trailer.*;
-import com.mrcrayfish.vehicle.entity.vehicle.*;
 import com.mrcrayfish.vehicle.item.ItemEngine;
 import com.mrcrayfish.vehicle.item.ItemWheel;
 import com.mrcrayfish.vehicle.network.PacketHandler;
@@ -37,7 +33,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
@@ -46,7 +41,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,49 +49,6 @@ import java.util.stream.Collectors;
  */
 public class GuiWorkstation extends GuiContainer
 {
-    private static final ImmutableList<Class<? extends EntityVehicle>> VEHICLES;
-    public static final ImmutableMap<Class<? extends EntityVehicle>, PartPosition> DISPLAY_PROPERTIES;
-
-    static
-    {
-        ImmutableMap.Builder<Class<? extends EntityVehicle>, PartPosition> builder = ImmutableMap.builder();
-        builder.put(EntityAluminumBoat.class, new PartPosition(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F));
-        builder.put(EntityATV.class, new PartPosition(0.0F, 0.0F, -0.25F, 0.0F, 0.0F, 0.0F, 1.5F));
-        builder.put(EntityBumperCar.class, new PartPosition(0.0F, 0.0F, -0.4F, 0.0F, 0.0F, 0.0F, 1.5F));
-        builder.put(EntityDuneBuggy.class, new PartPosition(0.0F, 0.0F, -0.25F, 0.0F, 0.0F, 0.0F, 1.75F));
-        builder.put(EntityGoKart.class, new PartPosition(0.0F, 0.0F, -0.15F, 0.0F, 0.0F, 0.0F, 1.5F));
-        builder.put(EntityGolfCart.class, new PartPosition(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.25F));
-        builder.put(EntityJetSki.class, new PartPosition(0.0F, 0.0F, -0.45F, 0.0F, 0.0F, 0.0F, 1.5F));
-        builder.put(EntityLawnMower.class, new PartPosition(0.0F, 0.0F, -0.7F, 0.0F, 0.0F, 0.0F, 1.5F));
-        builder.put(EntityMiniBike.class, new PartPosition(0.0F, 0.0F, -0.25F, 0.0F, 0.0F, 0.0F, 1.5F));
-        builder.put(EntityMoped.class, new PartPosition(0.0F, 0.0F, -0.25F, 0.0F, 0.0F, 0.0F, 1.5F));
-        builder.put(EntityOffRoader.class, new PartPosition(0.0F, 0.0F, 0.1F, 0.0F, 0.0F, 0.0F, 1.0F));
-        builder.put(EntityPoliceRoader.class, new PartPosition(0.0F, 0.0F, 0.1F, 0.0F, 0.0F, 0.0F, 1.0F));
-        builder.put(EntitySamuRoader.class, new PartPosition(0.0F, 0.0F, 0.1F, 0.0F, 0.0F, 0.0F, 1.0F));
-        builder.put(EntityFireRoader.class, new PartPosition(0.0F, 0.0F, 0.1F, 0.0F, 0.0F, 0.0F, 1.0F));
-        builder.put(EntityBeautifulRoader.class, new PartPosition(0.0F, 0.0F, 0.1F, 0.0F, 0.0F, 0.0F, 1.0F));
-        builder.put(EntityShoppingCart.class, new PartPosition(0.0F, 0.0F, -0.15F, 0.0F, 0.0F, 0.0F, 1.45F));
-        builder.put(EntitySmartCar.class, new PartPosition(0.0F, 0.0F, -0.2F, 0.0F, 0.0F, 0.0F, 1.35F));
-        builder.put(EntitySpeedBoat.class, new PartPosition(0.0F, 0.0F, -0.65F, 0.0F, 0.0F, 0.0F, 1.25F));
-        builder.put(EntitySportsPlane.class, new PartPosition(0.0F, 0.0F, 0.35F, 0.0F, 0.0F, 0.0F, 0.85F));
-        builder.put(EntityTractor.class, new PartPosition(0.0F, 0.0F, -0.2F, 0.0F, 0.0F, 0.0F, 1.25F));
-        builder.put(EntityVehicleTrailer.class, new PartPosition(0.0F, 0.0F, -0.15F, 0.0F, 0.0F, 0.0F, 1.35F));
-        builder.put(EntityStorageTrailer.class, new PartPosition(0.0F, 0.0F, -0.15F, 0.0F, 0.0F, 0.0F, 1.35F));
-        builder.put(EntitySeederTrailer.class, new PartPosition(0.0F, 0.0F, -0.15F, 0.0F, 0.0F, 0.0F, 1.35F));
-        builder.put(EntityFertilizerTrailer.class, new PartPosition(0.0F, 0.0F, -0.15F, 0.0F, 0.0F, 0.0F, 1.35F));
-        builder.put(EntityFluidTrailer.class, new PartPosition(0.0F, 0.0F, -0.15F, 0.0F, 0.0F, 0.0F, 1.35F));
-
-        if(Loader.isModLoaded("cfm"))
-        {
-            builder.put(EntityBath.class, new PartPosition(0.0F, 0.0F, -0.25F, 0.0F, 0.0F, 0.0F, 1.5F));
-            builder.put(EntityCouch.class, new PartPosition(0.0F, 0.0F, -0.25F, 0.0F, 0.0F, 0.0F, 1.5F));
-            builder.put(EntitySofacopter.class, new PartPosition(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.25F));
-        }
-
-        DISPLAY_PROPERTIES = builder.build();
-        VEHICLES = DISPLAY_PROPERTIES.keySet().asList();
-    }
-
     private static final ResourceLocation GUI = new ResourceLocation("vehicle:textures/gui/workstation.png");
 
     private List<MaterialItem> materials;
@@ -123,7 +74,7 @@ public class GuiWorkstation extends GuiContainer
         this.xSize = 289;
         this.ySize = 202;
         this.materials = new ArrayList<>();
-        this.cachedVehicle = new EntityVehicle[VEHICLES.size()];
+        this.cachedVehicle = new EntityVehicle[VehicleRecipes.getVehicleCount()];
     }
 
     @Override
@@ -274,7 +225,7 @@ public class GuiWorkstation extends GuiContainer
         {
             if(currentVehicle - 1 < 0)
             {
-                this.loadVehicle(VEHICLES.size() - 1);
+                this.loadVehicle(VehicleRecipes.getVehicleCount() - 1);
             }
             else
             {
@@ -284,7 +235,7 @@ public class GuiWorkstation extends GuiContainer
         }
         else if(button.id == 2)
         {
-            if(currentVehicle + 1 >= VEHICLES.size())
+            if(currentVehicle + 1 >= VehicleRecipes.getVehicleCount())
             {
                 this.loadVehicle(0);
             }
@@ -318,7 +269,7 @@ public class GuiWorkstation extends GuiContainer
         {
             if(cachedVehicle[index] == null)
             {
-                EntityVehicle vehicle = VEHICLES.get(index).getDeclaredConstructor(World.class).newInstance(Minecraft.getMinecraft().world);
+                EntityVehicle vehicle = VehicleRecipes.getVehicleClasses().get(index).getDeclaredConstructor(World.class).newInstance(Minecraft.getMinecraft().world);
                 java.util.List<EntityDataManager.DataEntry<?>> entryList = vehicle.getDataManager().getAll();
                 if(entryList != null)
                 {
@@ -423,11 +374,11 @@ public class GuiWorkstation extends GuiContainer
 
         this.mc.getTextureManager().bindTexture(GUI);
         this.drawTexturedModalRect(startX, startY + 80, 0, 134, 176, 122);
-        this.drawTexturedModalRect(startX + 180, startY, 176, 54, 6, 208);
-        this.drawTexturedModalRect(startX + 186, startY, 182, 54, 57, 208);
-        this.drawTexturedModalRect(startX + 186 + 57, startY, 220, 54, 23, 208);
-        this.drawTexturedModalRect(startX + 186 + 57 + 23, startY, 220, 54, 3, 208);
-        this.drawTexturedModalRect(startX + 186 + 57 + 23 + 3, startY, 236, 54, 20, 208);
+        this.drawTexturedModalRect(startX + 180, startY, 176, 54, 6, 202);
+        this.drawTexturedModalRect(startX + 186, startY, 182, 54, 57, 202);
+        this.drawTexturedModalRect(startX + 186 + 57, startY, 220, 54, 23, 202);
+        this.drawTexturedModalRect(startX + 186 + 57 + 23, startY, 220, 54, 3, 202);
+        this.drawTexturedModalRect(startX + 186 + 57 + 23 + 3, startY, 236, 54, 20, 202);
 
         /* Slots */
         this.drawSlot(startX, startY, 186, 29, 80, 0, 0, false, cachedVehicle[currentVehicle].canBeColored());
@@ -452,7 +403,7 @@ public class GuiWorkstation extends GuiContainer
 
             int vehicleIndex = transitioning ? prevCurrentVehicle : currentVehicle;
             Class<? extends EntityVehicle>  clazz = cachedVehicle[vehicleIndex].getClass();
-            PartPosition position = DISPLAY_PROPERTIES.get(clazz);
+            PartPosition position = VehicleProperties.getProperties(VehicleRecipes.getVehicleClasses().get(vehicleIndex)).getDisplayPosition();
             if(position != null)
             {
                 //Apply vehicle rotations, translations, and scale

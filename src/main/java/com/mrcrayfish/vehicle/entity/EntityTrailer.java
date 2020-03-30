@@ -1,12 +1,10 @@
 package com.mrcrayfish.vehicle.entity;
 
 import com.mrcrayfish.vehicle.VehicleConfig;
-import com.mrcrayfish.vehicle.init.ModItems;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -45,11 +43,9 @@ public abstract class EntityTrailer extends EntityVehicle
     }
 
     @Override
-    public void onClientInit()
+    public boolean canBeCollidedWith()
     {
-        super.onClientInit();
-        body = new ItemStack(ModItems.TRAILER_BODY);
-        wheel = new ItemStack(ModItems.WHEEL);
+        return true;
     }
 
     @Override
@@ -58,6 +54,27 @@ public abstract class EntityTrailer extends EntityVehicle
         prevWheelRotation = wheelRotation;
 
         this.motionY -= 0.08;
+
+        if(this.world.isRemote)
+        {
+            int entityId = this.dataManager.get(PULLING_ENTITY);
+            if(entityId != -1)
+            {
+                Entity entity = world.getEntityByID(this.dataManager.get(PULLING_ENTITY));
+                if(entity instanceof EntityPlayer || (entity instanceof EntityVehicle && ((EntityVehicle) entity).canTowTrailer()))
+                {
+                    this.pullingEntity = entity;
+                }
+                else if(this.pullingEntity != null)
+                {
+                    this.pullingEntity = null;
+                }
+            }
+            else if(this.pullingEntity != null)
+            {
+                this.pullingEntity = null;
+            }
+        }
 
         if(this.pullingEntity != null && !world.isRemote)
         {
@@ -80,9 +97,19 @@ public abstract class EntityTrailer extends EntityVehicle
         }
         else if(!world.isRemote)
         {
-            this.motionX *= 0.75;
-            this.motionZ *= 0.75;
             this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
+            
+            /* Reduces the motion and speed multiplier */
+            if(this.onGround)
+            {
+                this.motionX *= 0.65;
+                this.motionZ *= 0.65;
+            }
+            else
+            {
+                this.motionX *= 0.98;
+                this.motionZ *= 0.98;
+            }
         }
 
         this.doBlockCollisions();
@@ -171,35 +198,6 @@ public abstract class EntityTrailer extends EntityVehicle
     public boolean canMountTrailer()
     {
         return false;
-    }
-
-    @Override
-    public void notifyDataManagerChange(DataParameter<?> key)
-    {
-        super.notifyDataManagerChange(key);
-        if(world.isRemote)
-        {
-            if(PULLING_ENTITY.equals(key))
-            {
-                int entityId = this.dataManager.get(PULLING_ENTITY);
-                if(entityId != -1)
-                {
-                    Entity entity = world.getEntityByID(this.dataManager.get(PULLING_ENTITY));
-                    if(entity instanceof EntityPlayer || (entity instanceof EntityVehicle && ((EntityVehicle) entity).canTowTrailer()))
-                    {
-                        pullingEntity = entity;
-                    }
-                    else
-                    {
-                        pullingEntity = null;
-                    }
-                }
-                else
-                {
-                    pullingEntity = null;
-                }
-            }
-        }
     }
 
     public abstract double getHitchOffset();

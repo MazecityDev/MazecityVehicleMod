@@ -7,8 +7,8 @@ import com.mrcrayfish.vehicle.entity.EngineTier;
 import com.mrcrayfish.vehicle.entity.WheelType;
 import com.mrcrayfish.vehicle.init.ModBlocks;
 import com.mrcrayfish.vehicle.init.ModItems;
-import com.mrcrayfish.vehicle.tileentity.TileEntityFuelDrum;
 import com.mrcrayfish.vehicle.tileentity.TileEntityVehicleCrate;
+import com.mrcrayfish.vehicle.util.BlockNames;
 import com.mrcrayfish.vehicle.util.Bounds;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
@@ -57,7 +57,7 @@ public class BlockVehicleCrate extends BlockRotatedObject
 
     public BlockVehicleCrate()
     {
-        super(Material.IRON, MapColor.SILVER, "vehicle_crate");
+        super(Material.IRON, MapColor.SILVER, BlockNames.VEHICLE_CRATE);
         this.setHardness(1.5F);
         this.setResistance(5.0F);
         this.setCreativeTab(VehicleMod.CREATIVE_TAB);
@@ -201,7 +201,7 @@ public class BlockVehicleCrate extends BlockRotatedObject
 
         if(GuiScreen.isShiftKeyDown())
         {
-            String info = I18n.format("vehicle.tile.vehicle_crate.info", vehicle);
+            String info = I18n.format(this.getUnlocalizedName() + ".info", vehicle);
             tooltip.addAll(Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(info, 150));
         }
         else
@@ -213,7 +213,6 @@ public class BlockVehicleCrate extends BlockRotatedObject
     @Override
     public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
-        Collections.sort(REGISTERED_CRATES);
         REGISTERED_CRATES.forEach(resourceLocation ->
         {
             NBTTagCompound blockEntityTag = new NBTTagCompound();
@@ -261,6 +260,7 @@ public class BlockVehicleCrate extends BlockRotatedObject
         if(!REGISTERED_CRATES.contains(resource))
         {
             REGISTERED_CRATES.add(resource);
+            Collections.sort(REGISTERED_CRATES);
         }
     }
 

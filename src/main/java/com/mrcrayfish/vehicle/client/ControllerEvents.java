@@ -1,8 +1,8 @@
 package com.mrcrayfish.vehicle.client;
 
-import com.mrcrayfish.controllable.client.Buttons;
 import com.mrcrayfish.controllable.Controllable;
 import com.mrcrayfish.controllable.client.Action;
+import com.mrcrayfish.controllable.client.Buttons;
 import com.mrcrayfish.controllable.event.AvailableActionsEvent;
 import com.mrcrayfish.controllable.event.ControllerEvent;
 import com.mrcrayfish.controllable.event.RenderPlayerPreviewEvent;
@@ -40,7 +40,7 @@ public class ControllerEvents
             switch(event.getButton())
             {
                 case Buttons.A:
-                    if(player.getRidingEntity() instanceof EntityPoweredVehicle)
+                    if(Minecraft.getMinecraft().currentScreen == null && player.getRidingEntity() instanceof EntityPoweredVehicle)
                     {
                         event.setCanceled(true);
                     }

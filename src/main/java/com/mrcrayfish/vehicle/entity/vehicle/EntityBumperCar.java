@@ -3,27 +3,17 @@ package com.mrcrayfish.vehicle.entity.vehicle;
 import com.mrcrayfish.vehicle.client.EntityRaytracer.IEntityRaytraceable;
 import com.mrcrayfish.vehicle.entity.EngineType;
 import com.mrcrayfish.vehicle.entity.EntityLandVehicle;
-import com.mrcrayfish.vehicle.init.ModItems;
 import com.mrcrayfish.vehicle.init.ModSounds;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Author: MrCrayfish
  */
 public class EntityBumperCar extends EntityLandVehicle implements IEntityRaytraceable
 {
-    /**
-     * ItemStack instances used for rendering
-     */
-    @SideOnly(Side.CLIENT)
-    public ItemStack steeringWheel;
-
     public EntityBumperCar(World worldIn)
     {
         super(worldIn);
@@ -33,16 +23,6 @@ public class EntityBumperCar extends EntityLandVehicle implements IEntityRaytrac
         this.stepHeight = 0.625F;
 
         //TODO figure out fuel system
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void onClientInit()
-    {
-        super.onClientInit();
-        body = new ItemStack(ModItems.BUMPER_CAR_BODY);
-        wheel = new ItemStack(ModItems.WHEEL);
-        steeringWheel = new ItemStack(ModItems.GO_KART_STEERING_WHEEL);
     }
 
     @Override
@@ -58,32 +38,26 @@ public class EntityBumperCar extends EntityLandVehicle implements IEntityRaytrac
     {
         entity.motionX += vehicleMotionX * 2;
         entity.motionZ += vehicleMotionZ * 2;
-        world.playSound(null, this.posX, this.posY, this.posZ, ModSounds.bonk, SoundCategory.NEUTRAL, 1.0F, 0.6F + 0.1F * this.getNormalSpeed());
+        world.playSound(null, this.posX, this.posY, this.posZ, ModSounds.BONK, SoundCategory.NEUTRAL, 1.0F, 0.6F + 0.1F * this.getNormalSpeed());
         this.currentSpeed *= 0.25F;
     }
 
     @Override
     public SoundEvent getMovingSound()
     {
-        return ModSounds.electricEngineMono;
+        return ModSounds.ELECTRIC_ENGINE_MONO;
     }
 
     @Override
     public SoundEvent getRidingSound()
     {
-        return ModSounds.electricEngineStereo;
+        return ModSounds.ELECTRIC_ENGINE_STEREO;
     }
 
     @Override
     public float getMaxEnginePitch()
     {
         return 0.8F;
-    }
-
-    @Override
-    public double getMountedYOffset()
-    {
-        return 3 * 0.0625F;
     }
 
     @Override

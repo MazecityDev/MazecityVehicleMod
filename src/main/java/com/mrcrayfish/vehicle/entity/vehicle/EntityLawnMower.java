@@ -5,7 +5,6 @@ import com.mrcrayfish.vehicle.common.inventory.StorageInventory;
 import com.mrcrayfish.vehicle.entity.EngineType;
 import com.mrcrayfish.vehicle.entity.EntityLandVehicle;
 import com.mrcrayfish.vehicle.entity.trailer.EntityStorageTrailer;
-import com.mrcrayfish.vehicle.init.ModItems;
 import com.mrcrayfish.vehicle.init.ModSounds;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
@@ -20,36 +19,18 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Author: MrCrayfish
  */
 public class EntityLawnMower extends EntityLandVehicle implements IEntityRaytraceable
 {
-    /**
-     * ItemStack instances used for rendering
-     */
-    @SideOnly(Side.CLIENT)
-    public ItemStack steeringWheel;
-
     public EntityLawnMower(World worldIn)
     {
         super(worldIn);
         this.setMaxSpeed(8);
         this.setSize(1.2F, 1.0F);
         this.setFuelCapacity(5000F);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void onClientInit()
-    {
-        super.onClientInit();
-        body = new ItemStack(ModItems.LAWN_MOWER_BODY);
-        steeringWheel = new ItemStack(ModItems.GO_KART_STEERING_WHEEL);
-        wheel = new ItemStack(ModItems.WHEEL);
     }
 
     @Override
@@ -141,19 +122,13 @@ public class EntityLawnMower extends EntityLandVehicle implements IEntityRaytrac
     @Override
     public SoundEvent getMovingSound()
     {
-        return ModSounds.atvEngineMono;
+        return ModSounds.ATV_ENGINE_MONO;
     }
 
     @Override
     public SoundEvent getRidingSound()
     {
-        return ModSounds.atvEngineStereo;
-    }
-
-    @Override
-    public double getMountedYOffset()
-    {
-        return 10.5 * 0.0625;
+        return ModSounds.ATV_ENGINE_STEREO;
     }
 
     @Override

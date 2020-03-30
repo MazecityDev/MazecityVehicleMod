@@ -3,26 +3,16 @@ package com.mrcrayfish.vehicle.entity.vehicle;
 import com.mrcrayfish.vehicle.client.EntityRaytracer.IEntityRaytraceable;
 import com.mrcrayfish.vehicle.entity.EngineType;
 import com.mrcrayfish.vehicle.entity.EntityBoat;
-import com.mrcrayfish.vehicle.init.ModItems;
 import com.mrcrayfish.vehicle.init.ModSounds;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Author: MrCrayfish
  */
 public class EntitySpeedBoat extends EntityBoat implements IEntityRaytraceable
 {
-    /**
-     * ItemStack instances used for rendering
-     */
-    @SideOnly(Side.CLIENT)
-    public ItemStack handleBar;
-
     public EntitySpeedBoat(World worldIn)
     {
         super(worldIn);
@@ -30,16 +20,7 @@ public class EntitySpeedBoat extends EntityBoat implements IEntityRaytraceable
         this.setTurnSensitivity(15);
         this.setSize(1.5F, 1.0F);
         this.setFuelCapacity(25000F);
-        this.setFuelConsumption(3.0F);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void onClientInit()
-    {
-        super.onClientInit();
-        body = new ItemStack(ModItems.SPEED_BOAT_BODY);
-        handleBar = new ItemStack(ModItems.GO_KART_STEERING_WHEEL);
+        this.setFuelConsumption(0.75F);
     }
 
     @Override
@@ -65,13 +46,13 @@ public class EntitySpeedBoat extends EntityBoat implements IEntityRaytraceable
     @Override
     public SoundEvent getMovingSound()
     {
-        return ModSounds.speedBoatEngineMono;
+        return ModSounds.SPEED_BOAT_ENGINE_MONO;
     }
 
     @Override
     public SoundEvent getRidingSound()
     {
-        return ModSounds.speedBoatEngineStereo;
+        return ModSounds.SPEED_BOAT_ENGINE_STEREO;
     }
 
     @Override
@@ -90,12 +71,6 @@ public class EntitySpeedBoat extends EntityBoat implements IEntityRaytraceable
     public float getMaxEnginePitch()
     {
         return 2.0F;
-    }
-
-    @Override
-    public double getMountedYOffset()
-    {
-        return 3 * 0.0625;
     }
 
     @Override

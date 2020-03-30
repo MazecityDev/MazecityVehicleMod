@@ -6,7 +6,7 @@ import com.mrcrayfish.vehicle.client.EntityRaytracer;
 import com.mrcrayfish.vehicle.common.inventory.IStorage;
 import com.mrcrayfish.vehicle.common.inventory.StorageInventory;
 import com.mrcrayfish.vehicle.entity.EntityTrailer;
-import com.mrcrayfish.vehicle.init.ModItems;
+import com.mrcrayfish.vehicle.item.ItemSprayCan;
 import com.mrcrayfish.vehicle.network.PacketHandler;
 import com.mrcrayfish.vehicle.network.message.MessageAttachTrailer;
 import com.mrcrayfish.vehicle.network.message.MessageOpenStorage;
@@ -17,10 +17,13 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
@@ -56,13 +59,6 @@ public class EntityStorageTrailer extends EntityTrailer implements EntityRaytrac
     {
         super(worldIn);
         this.initInventory();
-    }
-
-    @Override
-    public void onClientInit()
-    {
-        super.onClientInit();
-        body = new ItemStack(ModItems.MODELS);
     }
 
     @Override
@@ -120,6 +116,7 @@ public class EntityStorageTrailer extends EntityTrailer implements EntityRaytrac
             else if(result.getPartHit() == CHEST_BOX)
             {
                 PacketHandler.INSTANCE.sendToServer(new MessageOpenStorage(this.getEntityId()));
+                Minecraft.getMinecraft().player.swingArm(EnumHand.MAIN_HAND);
                 return true;
             }
         }

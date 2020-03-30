@@ -1,10 +1,14 @@
 package com.mrcrayfish.vehicle.proxy;
 
-import com.mrcrayfish.controllable.client.Buttons;
+import com.google.common.base.Optional;
 import com.mrcrayfish.controllable.Controllable;
+import com.mrcrayfish.controllable.client.Buttons;
 import com.mrcrayfish.controllable.client.Controller;
 import com.mrcrayfish.vehicle.VehicleConfig;
-import com.mrcrayfish.vehicle.client.*;
+import com.mrcrayfish.vehicle.client.ClientEvents;
+import com.mrcrayfish.vehicle.client.ControllerEvents;
+import com.mrcrayfish.vehicle.client.EntityRaytracer;
+import com.mrcrayfish.vehicle.client.HeldVehicleEvents;
 import com.mrcrayfish.vehicle.client.audio.MovingSoundHorn;
 import com.mrcrayfish.vehicle.client.audio.MovingSoundHornRiding;
 import com.mrcrayfish.vehicle.client.audio.MovingSoundVehicle;
@@ -15,8 +19,13 @@ import com.mrcrayfish.vehicle.client.model.CustomLoader;
 import com.mrcrayfish.vehicle.client.render.*;
 import com.mrcrayfish.vehicle.client.render.tileentity.*;
 import com.mrcrayfish.vehicle.client.render.vehicle.*;
+import com.mrcrayfish.vehicle.common.entity.HeldVehicleDataHandler;
+import com.mrcrayfish.vehicle.common.entity.SyncedPlayerData;
 import com.mrcrayfish.vehicle.common.inventory.IStorage;
-import com.mrcrayfish.vehicle.entity.*;
+import com.mrcrayfish.vehicle.entity.EntityHelicopter;
+import com.mrcrayfish.vehicle.entity.EntityPlane;
+import com.mrcrayfish.vehicle.entity.EntityPoweredVehicle;
+import com.mrcrayfish.vehicle.entity.EntityVehicle;
 import com.mrcrayfish.vehicle.entity.trailer.*;
 import com.mrcrayfish.vehicle.entity.vehicle.*;
 import com.mrcrayfish.vehicle.init.ModItems;
@@ -28,7 +37,9 @@ import com.mrcrayfish.vehicle.tileentity.*;
 import com.mrcrayfish.vehicle.util.FluidUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
+import net.minecraft.client.audio.ITickableSound;
 import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.settings.KeyBinding;
@@ -55,14 +66,22 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.WeakHashMap;
+
 /**
  * Author: MrCrayfish
  */
 public class ClientProxy implements Proxy
 {
-    public static final KeyBinding KEY_HORN = new KeyBinding("key.horn", Keyboard.KEY_H, "key.categories.vehicle");
+    public static final KeyBinding KEY_HORN = new KeyBinding("key.vehicle.horn", Keyboard.KEY_H, "key.categories.vehicle");
+    public static final KeyBinding KEY_CYCLE_SEATS  = new KeyBinding("key.vehicle.cycle_seats", Keyboard.KEY_C, "key.categories.vehicle");
 
     public static boolean controllableLoaded = false;
+
+    private static final WeakHashMap<UUID, Map<SoundType, ITickableSound>> SOUND_TRACKER = new WeakHashMap<>();
     
     @Override
     public void preInit()
@@ -88,6 +107,7 @@ public class ClientProxy implements Proxy
         registerVehicleRender(EntityFireRoader.class, new RenderLandVehicleWrapper<>(new RenderFireRoader()));
         registerVehicleRender(EntityBeautifulRoader.class, new RenderLandVehicleWrapper<>(new RenderBeautifulRoader()));
         registerVehicleRender(EntityTractor.class, new RenderLandVehicleWrapper<>(new RenderTractor()));
+        registerVehicleRender(EntityMiniBus.class, new RenderLandVehicleWrapper<>(new RenderMiniBus()));
 
         /* Register Mod Exclusive Vehicles */
         if(Loader.isModLoaded("cfm"))
@@ -119,9 +139,9 @@ public class ClientProxy implements Proxy
 
         /* Key Bindings */
         ClientRegistry.registerKeyBinding(KEY_HORN);
+        ClientRegistry.registerKeyBinding(KEY_CYCLE_SEATS);
 
         ModelLoaderRegistry.registerLoader(new CustomLoader());
-        Models.registerModels(ModItems.MODELS);
     }
 
     private <T extends EntityVehicle & EntityRaytracer.IEntityRaytraceable, R extends AbstractRenderVehicle<T>> void registerVehicleRender(Class<T> clazz, RenderVehicleWrapper<T, R> wrapper)
@@ -170,21 +190,46 @@ public class ClientProxy implements Proxy
     {
         Minecraft.getMinecraft().addScheduledTask(() ->
         {
-            if(vehicle.getRidingSound() != null)
+            Map<SoundType, ITickableSound> soundMap = SOUND_TRACKER.computeIfAbsent(vehicle.getUniqueID(), uuid -> new HashMap<>());
+            if(vehicle.getRidingSound() != null && player.equals(Minecraft.getMinecraft().player))
             {
-                Minecraft.getMinecraft().getSoundHandler().playSound(new MovingSoundVehicleRiding(player, vehicle));
+                ITickableSound sound = soundMap.get(SoundType.ENGINE_RIDING);
+                if(sound == null || sound.isDonePlaying() || !Minecraft.getMinecraft().getSoundHandler().isSoundPlaying(sound))
+                {
+                    sound = new MovingSoundVehicleRiding(player, vehicle);
+                    soundMap.put(SoundType.ENGINE_RIDING, sound);
+                    Minecraft.getMinecraft().getSoundHandler().playSound(sound);
+                }
             }
-            if(vehicle.getMovingSound() != null)
+            if(vehicle.getMovingSound() != null && !player.equals(Minecraft.getMinecraft().player))
             {
-                Minecraft.getMinecraft().getSoundHandler().playSound(new MovingSoundVehicle(vehicle));
+                ITickableSound sound = soundMap.get(SoundType.ENGINE);
+                if(sound == null || sound.isDonePlaying() || !Minecraft.getMinecraft().getSoundHandler().isSoundPlaying(sound))
+                {
+                    sound = new MovingSoundVehicle(vehicle);
+                    soundMap.put(SoundType.ENGINE, sound);
+                    Minecraft.getMinecraft().getSoundHandler().playSound(new MovingSoundVehicle(vehicle));
+                }
             }
-            if(vehicle.getHornSound() != null)
+            if(vehicle.getHornSound() != null && !player.equals(Minecraft.getMinecraft().player))
             {
-                Minecraft.getMinecraft().getSoundHandler().playSound(new MovingSoundHorn(vehicle));
+                ITickableSound sound = soundMap.get(SoundType.HORN);
+                if(sound == null || sound.isDonePlaying() || !Minecraft.getMinecraft().getSoundHandler().isSoundPlaying(sound))
+                {
+                    sound = new MovingSoundHorn(vehicle);
+                    soundMap.put(SoundType.HORN, sound);
+                    Minecraft.getMinecraft().getSoundHandler().playSound(sound);
+                }
             }
-            if(vehicle.getHornRidingSound() != null)
+            if(vehicle.getHornRidingSound() != null && player.equals(Minecraft.getMinecraft().player))
             {
-                Minecraft.getMinecraft().getSoundHandler().playSound(new MovingSoundHornRiding(player, vehicle));
+                ITickableSound sound = soundMap.get(SoundType.HORN_RIDING);
+                if(sound == null || sound.isDonePlaying() || !Minecraft.getMinecraft().getSoundHandler().isSoundPlaying(sound))
+                {
+                    sound = new MovingSoundHornRiding(player, vehicle);
+                    soundMap.put(SoundType.HORN_RIDING, sound);
+                    Minecraft.getMinecraft().getSoundHandler().playSound(sound);
+                }
             }
         });
     }
@@ -255,6 +300,11 @@ public class ClientProxy implements Proxy
     {
         if(controllableLoaded)
         {
+            if(Minecraft.getMinecraft().currentScreen != null)
+            {
+                return EntityPoweredVehicle.AccelerationDirection.NONE;
+            }
+
             Controller controller = Controllable.getController();
             if(controller != null)
             {
@@ -269,11 +319,11 @@ public class ClientProxy implements Proxy
                         return EntityPoweredVehicle.AccelerationDirection.REVERSE;
                     }
                 }
-                else if(controller.getState().a)
+                else if(controller.isButtonPressed(Buttons.A))
                 {
                     return EntityPoweredVehicle.AccelerationDirection.FORWARD;
                 }
-                else if(controller.getState().b)
+                else if(controller.isButtonPressed(Buttons.B))
                 {
                     return EntityPoweredVehicle.AccelerationDirection.REVERSE;
                 }
@@ -288,6 +338,11 @@ public class ClientProxy implements Proxy
     {
         if(controllableLoaded)
         {
+            if(Minecraft.getMinecraft().currentScreen != null)
+            {
+                return EntityPoweredVehicle.TurnDirection.FORWARD;
+            }
+
             Controller controller = Controllable.getController();
             if(controller != null)
             {
@@ -299,11 +354,11 @@ public class ClientProxy implements Proxy
                 {
                     return EntityPoweredVehicle.TurnDirection.LEFT;
                 }
-                if(controller.getState().dpadRight)
+                if(controller.isButtonPressed(Buttons.DPAD_RIGHT))
                 {
                     return EntityPoweredVehicle.TurnDirection.RIGHT;
                 }
-                if(controller.getState().dpadLeft)
+                if(controller.isButtonPressed(Buttons.DPAD_LEFT))
                 {
                     return EntityPoweredVehicle.TurnDirection.LEFT;
                 }
@@ -328,6 +383,11 @@ public class ClientProxy implements Proxy
         {
             if(controllableLoaded)
             {
+                if(Minecraft.getMinecraft().currentScreen != null)
+                {
+                    return 0.0F;
+                }
+
                 Controller controller = Controllable.getController();
                 if(controller != null)
                 {
@@ -375,7 +435,7 @@ public class ClientProxy implements Proxy
             Controller controller = Controllable.getController();
             if(controller != null)
             {
-                if(controller.getState().rb)
+                if(controller.isButtonPressed(Buttons.RIGHT_BUMPER))
                 {
                     return true;
                 }
@@ -411,8 +471,8 @@ public class ClientProxy implements Proxy
             Controller controller = Controllable.getController();
             if(controller != null)
             {
-                flapUp |= controller.getState().rb;
-                flapDown |= controller.getState().lb;
+                flapUp |= controller.isButtonPressed(Buttons.RIGHT_BUMPER);
+                flapDown |= controller.isButtonPressed(Buttons.LEFT_BUMPER);
             }
         }
         return EntityPlane.FlapDirection.fromInput(flapUp, flapDown);
@@ -428,8 +488,8 @@ public class ClientProxy implements Proxy
             Controller controller = Controllable.getController();
             if(controller != null)
             {
-                flapUp |= controller.getState().rb;
-                flapDown |= controller.getState().lb;
+                flapUp |= controller.isButtonPressed(Buttons.RIGHT_BUMPER);
+                flapDown |= controller.isButtonPressed(Buttons.LEFT_BUMPER);
             }
         }
         return EntityHelicopter.AltitudeChange.fromInput(flapUp, flapDown);
@@ -528,5 +588,76 @@ public class ClientProxy implements Proxy
                 tank.setFluid(stack);
             }
         }
+    }
+
+    @Override
+    public void syncPlayerSeat(int entityId, int seatIndex, UUID uuid)
+    {
+        EntityPlayerSP clientPlayer = Minecraft.getMinecraft().player;
+        if(clientPlayer != null)
+        {
+            Entity entity = clientPlayer.world.getEntityByID(entityId);
+            if(entity instanceof EntityVehicle)
+            {
+                EntityVehicle vehicle = (EntityVehicle) entity;
+                vehicle.getSeatTracker().setSeatIndex(seatIndex, uuid);
+            }
+        }
+    }
+
+    @Override
+    public void syncHeldVehicle(int entityId, NBTTagCompound tagCompound)
+    {
+        World world = Minecraft.getMinecraft().world;
+        Entity entity = world.getEntityByID(entityId);
+        if(entity instanceof EntityPlayer)
+        {
+            HeldVehicleDataHandler.setHeldVehicle((EntityPlayer) entity, tagCompound);
+        }
+    }
+
+    @Override
+    public void syncPlayerData(int entityId, int trailer, Optional<BlockPos> gasPumpPos)
+    {
+        World world = Minecraft.getMinecraft().world;
+        Entity entity = world.getEntityByID(entityId);
+        if(entity instanceof EntityPlayer)
+        {
+            EntityPlayer player = (EntityPlayer) entity;
+            SyncedPlayerData.setTrailer(player, trailer);
+            SyncedPlayerData.setGasPumpPos(player, gasPumpPos);
+        }
+    }
+
+    @Override
+    public void syncTrailer(int entityId, int trailer)
+    {
+        World world = Minecraft.getMinecraft().world;
+        Entity entity = world.getEntityByID(entityId);
+        if(entity instanceof EntityPlayer)
+        {
+            EntityPlayer player = (EntityPlayer) entity;
+            SyncedPlayerData.setTrailer(player, trailer);
+        }
+    }
+
+    @Override
+    public void syncGasPumpPos(int entityId, Optional<BlockPos> gasPumpPos)
+    {
+        World world = Minecraft.getMinecraft().world;
+        Entity entity = world.getEntityByID(entityId);
+        if(entity instanceof EntityPlayer)
+        {
+            EntityPlayer player = (EntityPlayer) entity;
+            SyncedPlayerData.setGasPumpPos(player, gasPumpPos);
+        }
+    }
+
+    private enum SoundType
+    {
+        ENGINE,
+        ENGINE_RIDING,
+        HORN,
+        HORN_RIDING;
     }
 }

@@ -10,14 +10,18 @@ import com.mrcrayfish.vehicle.client.EntityRaytracer.RayTraceResultRotated;
 import com.mrcrayfish.vehicle.client.render.AbstractRenderVehicle;
 import com.mrcrayfish.vehicle.client.render.VehicleRenderRegistry;
 import com.mrcrayfish.vehicle.common.CommonEvents;
+import com.mrcrayfish.vehicle.common.entity.SyncedPlayerData;
 import com.mrcrayfish.vehicle.entity.EntityPoweredVehicle;
 import com.mrcrayfish.vehicle.entity.EntityVehicle;
+import com.mrcrayfish.vehicle.entity.VehicleProperties;
 import com.mrcrayfish.vehicle.init.ModBlocks;
 import com.mrcrayfish.vehicle.init.ModItems;
 import com.mrcrayfish.vehicle.init.ModSounds;
 import com.mrcrayfish.vehicle.item.ItemSprayCan;
 import com.mrcrayfish.vehicle.network.PacketHandler;
+import com.mrcrayfish.vehicle.network.message.MessageCycleSeats;
 import com.mrcrayfish.vehicle.network.message.MessageHitchTrailer;
+import com.mrcrayfish.vehicle.proxy.ClientProxy;
 import com.mrcrayfish.vehicle.tileentity.TileEntityFluidPipe;
 import com.mrcrayfish.vehicle.util.RenderUtil;
 import net.minecraft.block.Block;
@@ -55,6 +59,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.Pair;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -104,6 +109,9 @@ public class ClientEvents
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event)
     {
+        if(Minecraft.getMinecraft().player == null)
+            return;
+
         if(VehicleConfig.CLIENT.display.autoPerspective)
         {
             Entity entity = Minecraft.getMinecraft().player.getRidingEntity();
@@ -113,6 +121,14 @@ public class ClientEvents
                 {
                     originalPerspective = -1;
                 }
+            }
+        }
+
+        if(ClientProxy.KEY_CYCLE_SEATS.isPressed())
+        {
+            if(Minecraft.getMinecraft().player.getRidingEntity() instanceof EntityVehicle)
+            {
+                PacketHandler.INSTANCE.sendToServer(new MessageCycleSeats());
             }
         }
     }
@@ -188,7 +204,7 @@ public class ClientEvents
         Entity ridingEntity = player.getRidingEntity();
         ModelPlayer model = event.getModelPlayer();
 
-        if(player.getDataManager().get(CommonEvents.GAS_PUMP).isPresent())
+        if(SyncedPlayerData.getGasPumpPos(player).isPresent())
         {
             boolean rightHanded = player.getPrimaryHand() == EnumHandSide.RIGHT;
             if(rightHanded)
@@ -221,16 +237,6 @@ public class ClientEvents
                 ModelBiped.copyModelAngles(model.bipedHead, model.bipedLeftArm);
                 model.bipedLeftArm.rotateAngleX += Math.toRadians(-80F);
             }
-        }
-
-        if(player.getDataManager().get(CommonEvents.PUSHING_CART))
-        {
-            player.renderYawOffset = player.rotationYawHead;
-            model.bipedRightArm.rotateAngleX = (float) Math.toRadians(-90F);
-            model.bipedRightArm.rotateAngleY = (float) Math.toRadians(5F);
-            model.bipedLeftArm.rotateAngleX = (float) Math.toRadians(-90F);
-            model.bipedLeftArm.rotateAngleY = (float) Math.toRadians(-5F);
-            return;
         }
 
         if(ridingEntity != null && ridingEntity instanceof EntityVehicle)
@@ -269,8 +275,13 @@ public class ClientEvents
                 if(!player.inventory.getCurrentItem().isEmpty() && player.inventory.getCurrentItem().getItem() instanceof ItemSprayCan)
                 {
                     float pitch = 0.85F + 0.15F * ItemSprayCan.getRemainingSprays(player.inventory.getCurrentItem());
-                    Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getRecord(ModSounds.sprayCanShake, pitch, 0.75F));
+                    Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getRecord(ModSounds.SPRAY_CAN_SHAKE, pitch, 0.75F));
                 }
+            }
+
+            if(VehicleConfig.CLIENT.debug.reloadVehiclePropertiesEachTick)
+            {
+                VehicleProperties.register();
             }
 
             if(player.getRidingEntity() == null)
@@ -319,7 +330,7 @@ public class ClientEvents
             double offset = Math.sin((tickCounter + Minecraft.getMinecraft().getRenderPartialTicks()) * 0.4) * 0.01;
             if (offsetPrev > offsetPrevPrev && offsetPrev > offset)
             {
-                Minecraft.getMinecraft().player.playSound(ModSounds.liquidGlug, 0.3F, 1F);
+                Minecraft.getMinecraft().player.playSound(ModSounds.LIQUID_GLUG, 0.3F, 1F);
             }
             offsetPrevPrev = offsetPrev;
             offsetPrev = offset;
@@ -332,7 +343,7 @@ public class ClientEvents
         }
 
         EntityPlayer player = Minecraft.getMinecraft().player;
-        if(player.getDataManager().get(CommonEvents.GAS_PUMP).isPresent())
+        if(SyncedPlayerData.getGasPumpPos(player).isPresent())
         {
             if(event.getSwingProgress() > 0)
             {
@@ -351,7 +362,7 @@ public class ClientEvents
                 GlStateManager.translate((float) handOffset * f, f1, f2);
                 GlStateManager.translate((float) handOffset * 0.65F, -0.52F + 0.25F, -0.72F);
                 GlStateManager.rotate(45F, 1, 0, 0);
-                RenderUtil.renderItemModel(new ItemStack(ModItems.MODELS), Models.NOZZLE.getModel(), ItemCameraTransforms.TransformType.NONE);
+                RenderUtil.renderItemModel(new ItemStack(ModItems.MODELS), SpecialModels.NOZZLE.getModel(), ItemCameraTransforms.TransformType.NONE);
                 GlStateManager.popMatrix();
                 event.setCanceled(true);
             }
@@ -366,7 +377,7 @@ public class ClientEvents
     public void onRenderThirdPerson(RenderItemEvent.Held.Pre event)
     {
         Entity entity = event.getEntity();
-        if(entity instanceof EntityPlayer && entity.getDataManager().get(CommonEvents.GAS_PUMP).isPresent())
+        if(entity instanceof EntityPlayer && SyncedPlayerData.getGasPumpPos((EntityPlayer) entity).isPresent())
         {
             event.setCanceled(true);
             return;
@@ -385,7 +396,7 @@ public class ClientEvents
     public void onModelRenderPost(ModelPlayerEvent.Render.Post event)
     {
         EntityPlayer entity = event.getEntityPlayer();
-        if(entity.getDataManager().get(CommonEvents.GAS_PUMP).isPresent())
+        if(SyncedPlayerData.getGasPumpPos(entity).isPresent())
         {
             GlStateManager.pushMatrix();
             {
@@ -406,7 +417,7 @@ public class ClientEvents
                     boolean leftHanded = entity.getPrimaryHand() == EnumHandSide.LEFT;
                     GlStateManager.translate((float) (leftHanded ? -1 : 1) / 16.0F, 0.125F, -0.625F);
                     GlStateManager.translate(0, -9 * 0.0625F, 5.75 * 0.0625F);
-                    RenderUtil.renderItemModel(new ItemStack(ModItems.MODELS), Models.NOZZLE.getModel(), ItemCameraTransforms.TransformType.NONE);
+                    RenderUtil.renderItemModel(new ItemStack(ModItems.MODELS), SpecialModels.NOZZLE.getModel(), ItemCameraTransforms.TransformType.NONE);
                 }
                 GlStateManager.popMatrix();
             }
@@ -573,7 +584,7 @@ public class ClientEvents
     @SubscribeEvent
     public void onJump(InputEvent.KeyInputEvent event)
     {
-        if(GuiScreen.isCtrlKeyDown())
+        if(Keyboard.getEventKeyState() && Keyboard.getEventKey() == Minecraft.getMinecraft().gameSettings.keyBindSprint.getKeyCode())
         {
             EntityPlayer player = Minecraft.getMinecraft().player;
             if(Minecraft.getMinecraft().currentScreen == null && player.getRidingEntity() instanceof EntityVehicle)

@@ -11,12 +11,12 @@ import com.mrcrayfish.vehicle.common.inventory.IAttachableChest;
 import com.mrcrayfish.vehicle.common.inventory.StorageInventory;
 import com.mrcrayfish.vehicle.entity.EngineType;
 import com.mrcrayfish.vehicle.entity.EntityMotorcycle;
-import com.mrcrayfish.vehicle.init.ModItems;
 import com.mrcrayfish.vehicle.init.ModSounds;
 import com.mrcrayfish.vehicle.network.PacketHandler;
 import com.mrcrayfish.vehicle.network.message.MessageAttachChest;
 import com.mrcrayfish.vehicle.network.message.MessageOpenStorage;
 import com.mrcrayfish.vehicle.util.InventoryUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
@@ -33,6 +33,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -69,15 +70,6 @@ public class EntityMoped extends EntityMotorcycle implements IEntityRaytraceable
 
     private StorageInventory inventory;
 
-    /**
-     * ItemStack instances used for rendering
-     */
-    @SideOnly(Side.CLIENT)
-    public ItemStack handleBar;
-
-    @SideOnly(Side.CLIENT)
-    public ItemStack mudGuard;
-
     public EntityMoped(World worldIn)
     {
         super(worldIn);
@@ -85,7 +77,7 @@ public class EntityMoped extends EntityMotorcycle implements IEntityRaytraceable
         this.setTurnSensitivity(15);
         this.setMaxTurnAngle(45);
         this.setFuelCapacity(12000F);
-        this.setFuelConsumption(0.9F);
+        this.setFuelConsumption(0.225F);
     }
 
     @Override
@@ -96,50 +88,15 @@ public class EntityMoped extends EntityMotorcycle implements IEntityRaytraceable
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void onClientInit()
-    {
-        super.onClientInit();
-        body = new ItemStack(ModItems.MOPED_BODY);
-        wheel = new ItemStack(ModItems.WHEEL);
-        handleBar = new ItemStack(ModItems.MOPED_HANDLE_BAR);
-        mudGuard = new ItemStack(ModItems.MOPED_MUD_GUARD);
-    }
-
-    @Override
-    public void notifyDataManagerChange(DataParameter<?> key)
-    {
-        super.notifyDataManagerChange(key);
-        if(world.isRemote)
-        {
-            if(COLOR.equals(key))
-            {
-                int color = this.dataManager.get(COLOR);
-                this.setPartColor(handleBar, color);
-                this.setPartColor(mudGuard, color);
-            }
-        }
-    }
-
-    private void setPartColor(ItemStack stack, int color)
-    {
-        if(!stack.hasTagCompound())
-        {
-            stack.setTagCompound(new NBTTagCompound());
-        }
-        stack.getTagCompound().setInteger("color", color);
-    }
-
-    @Override
     public SoundEvent getMovingSound()
     {
-        return ModSounds.mopedEngineMono;
+        return ModSounds.MOPED_ENGINE_MONO;
     }
 
     @Override
     public SoundEvent getRidingSound()
     {
-        return ModSounds.mopedEngineStereo;
+        return ModSounds.MOPED_ENGINE_STEREO;
     }
 
     @Override
@@ -158,12 +115,6 @@ public class EntityMoped extends EntityMotorcycle implements IEntityRaytraceable
     public float getMaxEnginePitch()
     {
         return 1.2F;
-    }
-
-    @Override
-    public double getMountedYOffset()
-    {
-        return 8 * 0.0625;
     }
 
     @Override
@@ -221,6 +172,7 @@ public class EntityMoped extends EntityMotorcycle implements IEntityRaytraceable
             if(partHit == CHEST_BOX && this.hasChest())
             {
                 PacketHandler.INSTANCE.sendToServer(new MessageOpenStorage(this.getEntityId()));
+                Minecraft.getMinecraft().player.swingArm(EnumHand.MAIN_HAND);
                 return true;
             }
             else if(partHit == TRAY_BOX && !this.hasChest())

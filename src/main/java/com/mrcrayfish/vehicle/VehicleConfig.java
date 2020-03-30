@@ -60,6 +60,24 @@ public class VehicleConfig
         @Config.Comment("The maximum distance before the hose from the gas pump or fluid hose breaks")
         @Config.LangKey(Reference.MOD_ID + ".config.server.max_hose_distance")
         public double maxHoseDistance = 6.0;
+
+        @Config.Name("Pipe Transfer Amount")
+        @Config.Comment("The amount of fluid a pipe will transfer each tick")
+        @Config.LangKey(Reference.MOD_ID + ".config.server.pipe_transfer_amount")
+        @Config.RangeInt(min = 1)
+        public int pipeTransferAmount = 50;
+
+        @Config.Name("Pump Transfer Amount")
+        @Config.Comment("The amount of fluid a pump will transfer each tick")
+        @Config.LangKey(Reference.MOD_ID + ".config.server.pump_transfer_amount")
+        @Config.RangeInt(min = 1)
+        public int pumpTransferAmount = 50;
+
+        @Config.Name("Fuel Consumption Factor")
+        @Config.Comment("Change the amount of fuel vehicles consumes by multiplying the consumption rate by this factor")
+        @Config.LangKey(Reference.MOD_ID + ".config.erver.fuel_consumption_modifier")
+        @Config.RangeDouble(min = 0.0)
+        public double fuelConsumptionFactor = 1.0;
     }
 
     public static class Client
@@ -110,6 +128,12 @@ public class VehicleConfig
         @Config.Comment("If true, an animation is performed while cycling vehicles in the workstation")
         @Config.LangKey(Reference.MOD_ID + ".config.client.display.workstation_animation")
         public boolean workstationAnimation = true;
+
+        @Config.Name("Hose Segments")
+        @Config.Comment("The amount of segments to use to render the hose on a gas pump. The lower the value, the better the performance but renders a less realistically looking hose")
+        @Config.LangKey(Reference.MOD_ID + ".config.client.display.hose_segments")
+        @Config.RangeInt(min = 1, max = 100)
+        public int hoseSegments = 10;
     }
 
     public static class Controller
@@ -131,6 +155,11 @@ public class VehicleConfig
         @Config.Comment("If true, the raytracer will be reloaded each tick.")
         @Config.LangKey(Reference.MOD_ID + ".config.client.debug.raytracer.continuous_reload")
         public boolean reloadRaytracerEachTick = false;
+
+        @Config.Name("Reload Vehicle Properties Each Tick")
+        @Config.Comment("If true, the vehicle properties will be reloaded each tick.")
+        @Config.LangKey(Reference.MOD_ID + ".config.client.debug.raytracer.vehicle_properties_reload")
+        public boolean reloadVehiclePropertiesEachTick = false;
     }
 
     @SubscribeEvent

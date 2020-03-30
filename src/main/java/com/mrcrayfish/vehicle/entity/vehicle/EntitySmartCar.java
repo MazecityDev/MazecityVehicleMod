@@ -3,25 +3,15 @@ package com.mrcrayfish.vehicle.entity.vehicle;
 import com.mrcrayfish.vehicle.client.EntityRaytracer.IEntityRaytraceable;
 import com.mrcrayfish.vehicle.entity.EngineType;
 import com.mrcrayfish.vehicle.entity.EntityLandVehicle;
-import com.mrcrayfish.vehicle.init.ModItems;
 import com.mrcrayfish.vehicle.init.ModSounds;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Author: MrCrayfish
  */
 public class EntitySmartCar extends EntityLandVehicle implements IEntityRaytraceable
 {
-    /**
-     * ItemStack instances used for rendering
-     */
-    @SideOnly(Side.CLIENT)
-    public ItemStack steeringWheel;
-
     public EntitySmartCar(World worldIn)
     {
         super(worldIn);
@@ -32,25 +22,15 @@ public class EntitySmartCar extends EntityLandVehicle implements IEntityRaytrace
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void onClientInit()
-    {
-        super.onClientInit();
-        body = new ItemStack(ModItems.SMART_CAR_BODY);
-        wheel = new ItemStack(ModItems.WHEEL);
-        steeringWheel = new ItemStack(ModItems.GO_KART_STEERING_WHEEL);
-    }
-
-    @Override
     public SoundEvent getMovingSound()
     {
-        return ModSounds.electricEngineMono;
+        return ModSounds.ELECTRIC_ENGINE_MONO;
     }
 
     @Override
     public SoundEvent getRidingSound()
     {
-        return ModSounds.electricEngineStereo;
+        return ModSounds.ELECTRIC_ENGINE_STEREO;
     }
 
     @Override
@@ -69,12 +49,6 @@ public class EntitySmartCar extends EntityLandVehicle implements IEntityRaytrace
     public float getMaxEnginePitch()
     {
         return 1.6F;
-    }
-
-    @Override
-    public double getMountedYOffset()
-    {
-        return 2 * 0.0625;
     }
 
     @Override

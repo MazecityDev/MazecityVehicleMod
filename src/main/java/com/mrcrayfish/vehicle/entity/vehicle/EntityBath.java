@@ -3,8 +3,6 @@ package com.mrcrayfish.vehicle.entity.vehicle;
 import com.mrcrayfish.vehicle.client.EntityRaytracer.IEntityRaytraceable;
 import com.mrcrayfish.vehicle.entity.EngineType;
 import com.mrcrayfish.vehicle.entity.EntityPlane;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
@@ -33,13 +31,6 @@ public class EntityBath extends EntityPlane implements IEntityRaytraceable
     }
 
     @Override
-    public void onClientInit()
-    {
-        super.onClientInit();
-        body = new ItemStack(Item.getByNameOrId("cfm:bath_bottom"), 1, 0);
-    }
-
-    @Override
     public void updateVehicle()
     {
         if(this.isFlying() && this.getControllingPassenger() != null)
@@ -49,12 +40,6 @@ public class EntityBath extends EntityPlane implements IEntityRaytraceable
                 world.spawnParticle(EnumParticleTypes.DRIP_WATER, posX - 0.25 + 0.5 * rand.nextGaussian(), posY + 0.5 * rand.nextGaussian(), posZ - 0.25 + 0.5 * rand.nextGaussian(), 0, 0, 0, 0);
             }
         }
-    }
-
-    @Override
-    public double getMountedYOffset()
-    {
-        return 0.0625;
     }
 
     @Override

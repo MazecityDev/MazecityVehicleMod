@@ -4,12 +4,10 @@ import com.mrcrayfish.vehicle.client.EntityRaytracer;
 import com.mrcrayfish.vehicle.common.entity.PartPosition;
 import com.mrcrayfish.vehicle.entity.EntityLandVehicle;
 import com.mrcrayfish.vehicle.entity.VehicleProperties;
-import net.minecraft.client.Minecraft;
+import com.mrcrayfish.vehicle.util.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.util.math.Vec3d;
-import org.lwjgl.opengl.GL11;
 
 /**
  * Author: MrCrayfish
@@ -51,7 +49,7 @@ public class RenderLandVehicleWrapper<T extends EntityLandVehicle & EntityRaytra
 
                 Vec3d towBarOffset = properties.getTowBarPosition();
                 GlStateManager.translate(towBarOffset.x * 0.0625, towBarOffset.y * 0.0625 + 0.5, -towBarOffset.z * 0.0625);
-                Minecraft.getMinecraft().getRenderItem().renderItem(entity.towBar, ItemCameraTransforms.TransformType.NONE);
+                RenderUtil.renderModel(this.renderVehicle.getTowBarModel().getModel(), ItemCameraTransforms.TransformType.NONE);
                 GlStateManager.popMatrix();
             }
 
@@ -88,38 +86,14 @@ public class RenderLandVehicleWrapper<T extends EntityLandVehicle & EntityRaytra
             //Render the engine if the vehicle has explicitly stated it should
             if(entity.shouldRenderEngine() && entity.hasEngine())
             {
-                this.renderEngine(entity, properties.getEnginePosition(), entity.engine);
+                this.renderEngine(entity, properties.getEnginePosition());
             }
 
             //Render the fuel port of the vehicle
-            if(entity.shouldRenderFuelPort() && entity.requiresFuel())
-            {
-                EntityRaytracer.RayTraceResultRotated result = EntityRaytracer.getContinuousInteraction();
-                if (result != null && result.entityHit == entity && result.equalsContinuousInteraction(EntityRaytracer.FUNCTION_FUELING))
-                {
-                    this.renderPart(properties.getFuelPortPosition(), entity.fuelPortBody);
-                    if(renderVehicle.shouldRenderFuelLid())
-                    {
-                        this.renderPart(properties.getFuelPortLidPosition(), entity.fuelPortLid);
-                    }
-                    entity.playFuelPortOpenSound();
-                }
-                else
-                {
-                    this.renderPart(properties.getFuelPortPosition(), entity.fuelPortClosed);
-                    entity.playFuelPortCloseSound();
-                }
-            }
+            this.renderFuelPort(entity, properties.getFuelPortPosition());
 
-
-            if(entity.isKeyNeeded())
-            {
-                this.renderPart(properties.getKeyPortPosition(), entity.keyPort);
-                if(!entity.getKeyStack().isEmpty())
-                {
-                    this.renderKey(properties.getKeyPosition(), entity.getKeyStack());
-                }
-            }
+            //Render the key port
+            this.renderKeyPort(entity);
         }
         GlStateManager.popMatrix();
     }
@@ -137,7 +111,7 @@ public class RenderLandVehicleWrapper<T extends EntityLandVehicle & EntityRaytra
                 if(wheel.getPosition() == Wheel.Position.FRONT)
                 {
                     float wheelAngle = vehicle.prevRenderWheelAngle + (vehicle.renderWheelAngle - vehicle.prevRenderWheelAngle) * partialTicks;
-                    GlStateManager.rotate(wheelAngle / 2.0F, 0, 1, 0);
+                    GlStateManager.rotate(wheelAngle, 0, 1, 0);
                 }
                 if(vehicle.isMoving())
                 {
@@ -149,7 +123,7 @@ public class RenderLandVehicleWrapper<T extends EntityLandVehicle & EntityRaytra
                 {
                     GlStateManager.rotate(180F, 0, 1, 0);
                 }
-                Minecraft.getMinecraft().getRenderItem().renderItem(vehicle.wheel, ItemCameraTransforms.TransformType.NONE);
+                RenderUtil.renderColoredModel(RenderUtil.getWheelModel(vehicle), ItemCameraTransforms.TransformType.NONE, vehicle.getWheelColor());
             }
             GlStateManager.popMatrix();
         }

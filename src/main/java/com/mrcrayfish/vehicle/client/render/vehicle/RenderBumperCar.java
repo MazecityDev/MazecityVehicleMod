@@ -1,8 +1,9 @@
 package com.mrcrayfish.vehicle.client.render.vehicle;
 
+import com.mrcrayfish.vehicle.client.SpecialModels;
 import com.mrcrayfish.vehicle.client.render.AbstractRenderVehicle;
 import com.mrcrayfish.vehicle.entity.vehicle.EntityBumperCar;
-import net.minecraft.client.Minecraft;
+import com.mrcrayfish.vehicle.util.RenderUtil;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -17,7 +18,7 @@ public class RenderBumperCar extends AbstractRenderVehicle<EntityBumperCar>
     public void render(EntityBumperCar entity, float partialTicks)
     {
         //Render body
-        this.renderDamagedPart(entity, entity.body);
+        this.renderDamagedPart(entity,SpecialModels.BUMPER_CAR_BODY.getModel());
 
         //Render the handles bars
         GlStateManager.pushMatrix();
@@ -32,7 +33,7 @@ public class RenderBumperCar extends AbstractRenderVehicle<EntityBumperCar>
             float turnRotation = wheelAngleNormal * 25F;
             GlStateManager.rotate(turnRotation, 0, 1, 0);
 
-            Minecraft.getMinecraft().getRenderItem().renderItem(entity.steeringWheel, ItemCameraTransforms.TransformType.NONE);
+            RenderUtil.renderColoredModel(SpecialModels.GO_KART_STEERING_WHEEL.getModel(), ItemCameraTransforms.TransformType.NONE, entity.getColor());
         }
         GlStateManager.popMatrix();
     }

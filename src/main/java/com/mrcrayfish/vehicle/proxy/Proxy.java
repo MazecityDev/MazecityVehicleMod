@@ -1,5 +1,6 @@
 package com.mrcrayfish.vehicle.proxy;
 
+import com.google.common.base.Optional;
 import com.mrcrayfish.vehicle.entity.EntityHelicopter;
 import com.mrcrayfish.vehicle.entity.EntityPlane;
 import com.mrcrayfish.vehicle.entity.EntityPoweredVehicle;
@@ -9,6 +10,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
+
+import java.util.UUID;
 
 /**
  * Author: MrCrayfish
@@ -26,6 +29,14 @@ public interface Proxy
     default void openVehicleEditWindow(int entityId, int windowId) {}
 
     default void syncStorageInventory(int entityId, NBTTagCompound tagCompound) {}
+
+    default void syncHeldVehicle(int entityId, NBTTagCompound tagCompound) {}
+
+    default void syncPlayerData(int entityId, int trailer, Optional<BlockPos> gasPumpPos) {}
+
+    default void syncTrailer(int entityId, int trailer) {}
+
+    default void syncGasPumpPos(int entityId, Optional<BlockPos> gasPumpPos) {}
 
     default void syncEntityFluid(int entityId, FluidStack stack) {}
 
@@ -82,4 +93,6 @@ public interface Proxy
     {
         return 1.0F;
     }
+
+    default void syncPlayerSeat(int entityId, int seatIndex, UUID uuid) {}
 }

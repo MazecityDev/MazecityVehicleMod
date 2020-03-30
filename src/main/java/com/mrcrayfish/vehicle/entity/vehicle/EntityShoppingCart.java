@@ -4,15 +4,11 @@ import com.mrcrayfish.vehicle.client.EntityRaytracer.IEntityRaytraceable;
 import com.mrcrayfish.vehicle.common.CommonEvents;
 import com.mrcrayfish.vehicle.entity.EngineType;
 import com.mrcrayfish.vehicle.entity.EntityLandVehicle;
-import com.mrcrayfish.vehicle.init.ModItems;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Author: MrCrayfish
@@ -28,15 +24,6 @@ public class EntityShoppingCart extends EntityLandVehicle implements IEntityRayt
         this.setTurnSensitivity(15);
         this.setFuelCapacity(0F);
         this.setFuelConsumption(0F);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void onClientInit()
-    {
-        super.onClientInit();
-        body = new ItemStack(ModItems.SHOPPING_CART_BODY);
-        wheel = new ItemStack(ModItems.WHEEL);
     }
 
     @Override
@@ -65,34 +52,6 @@ public class EntityShoppingCart extends EntityLandVehicle implements IEntityRayt
     }
 
     @Override
-    public boolean processInitialInteract(EntityPlayer player, EnumHand hand)
-    {
-        if(!world.isRemote)
-        {
-            if(player.isSneaking())
-            {
-                if(pusher == player)
-                {
-                    pusher = null;
-                    player.getDataManager().set(CommonEvents.PUSHING_CART, false);
-                    return true;
-                }
-                else if(pusher == null)
-                {
-                    pusher = player;
-                    player.getDataManager().set(CommonEvents.PUSHING_CART, true);
-                }
-            }
-            else if(pusher != player)
-            {
-                super.processInitialInteract(player, hand);
-            }
-
-        }
-        return true;
-    }
-
-    @Override
     public SoundEvent getMovingSound()
     {
         return null;
@@ -102,12 +61,6 @@ public class EntityShoppingCart extends EntityLandVehicle implements IEntityRayt
     public SoundEvent getRidingSound()
     {
         return null;
-    }
-
-    @Override
-    public double getMountedYOffset()
-    {
-        return 0.0625 * 7.5;
     }
 
     @Override

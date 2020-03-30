@@ -2,7 +2,6 @@ package com.mrcrayfish.vehicle.block;
 
 import com.mrcrayfish.vehicle.init.ModFluids;
 import com.mrcrayfish.vehicle.item.ItemJerryCan;
-import com.mrcrayfish.vehicle.tileentity.TileEntityFluidExtractor;
 import com.mrcrayfish.vehicle.tileentity.TileEntityFuelDrum;
 import com.mrcrayfish.vehicle.util.Bounds;
 import net.minecraft.block.material.Material;
@@ -56,7 +55,7 @@ public class BlockFuelDrum extends BlockRotatedObject
     {
         if(GuiScreen.isShiftKeyDown())
         {
-            String info = I18n.format("vehicle.tile.fuel_drum.info");
+            String info = I18n.format("tile.vehicle.fuel_drum.info");
             tooltip.addAll(Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(info, 150));
         }
         else

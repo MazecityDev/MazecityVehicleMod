@@ -3,6 +3,7 @@ package com.mrcrayfish.vehicle.block;
 import com.mrcrayfish.vehicle.init.ModBlocks;
 import com.mrcrayfish.vehicle.init.ModItems;
 import com.mrcrayfish.vehicle.tileentity.TileEntityFluidPipe;
+import com.mrcrayfish.vehicle.util.BlockNames;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -17,10 +18,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -63,7 +66,7 @@ public class BlockFluidPipe extends BlockObject
 
     public BlockFluidPipe()
     {
-        this("fluid_pipe");
+        this(BlockNames.FLUID_PIPE);
         this.setHardness(0.5F);
     }
 
@@ -90,7 +93,7 @@ public class BlockFluidPipe extends BlockObject
     {
         if(GuiScreen.isShiftKeyDown())
         {
-            String info = I18n.format("vehicle.tile." + name + ".info");
+            String info = I18n.format(this.getUnlocalizedName() + ".info");
             tooltip.addAll(Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(info, 150));
         }
         else
@@ -246,6 +249,7 @@ public class BlockFluidPipe extends BlockObject
             pipe.setConnectionDisabled(facing, !pipe.isConnectionDisabled(facing));
             world.markBlockRangeForRenderUpdate(pos.getX() - 1, pos.getY() - 1, pos.getZ() - 1, pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
             world.scheduleUpdate(pos, state.getBlock(), 0);
+            world.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, SoundEvents.ENTITY_IRONGOLEM_STEP, SoundCategory.BLOCKS, 1.0F, 2.0F);
             return true;
         }
         return false;

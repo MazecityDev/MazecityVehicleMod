@@ -7,7 +7,6 @@ import com.mrcrayfish.vehicle.client.EntityRaytracer;
 import com.mrcrayfish.vehicle.common.inventory.IStorage;
 import com.mrcrayfish.vehicle.common.inventory.StorageInventory;
 import com.mrcrayfish.vehicle.entity.EntityTrailer;
-import com.mrcrayfish.vehicle.init.ModItems;
 import com.mrcrayfish.vehicle.item.ItemSprayCan;
 import com.mrcrayfish.vehicle.network.PacketHandler;
 import com.mrcrayfish.vehicle.network.message.MessageAttachTrailer;
@@ -66,7 +65,7 @@ public class EntityFertilizerTrailer extends EntityTrailer implements EntityRayt
     {
         super(worldIn);
         this.initInventory();
-        this.setSize(1.5F, 1.5F);
+        this.setSize(1.5F, 1.0F);
     }
 
     public boolean canBeColored()
@@ -81,19 +80,16 @@ public class EntityFertilizerTrailer extends EntityTrailer implements EntityRayt
     }
 
     @Override
-    public void onClientInit()
-    {
-        super.onClientInit();
-        body = new ItemStack(ModItems.MODELS);
-    }
-
-    @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand)
     {
         ItemStack heldItem = player.getHeldItem(hand);
         if((heldItem.isEmpty() || !(heldItem.getItem() instanceof ItemSprayCan)) && player instanceof EntityPlayerMP)
         {
-            inventory.openGui((EntityPlayerMP) player, this);
+            if(!player.isSneaking())
+            {
+                this.inventory.openGui((EntityPlayerMP) player, this);
+                return true;
+            }
         }
         return super.processInitialInteract(player, hand);
     }

@@ -1,14 +1,20 @@
 package com.mrcrayfish.vehicle.client.render.vehicle;
 
+import com.mrcrayfish.vehicle.client.SpecialModels;
 import com.mrcrayfish.vehicle.client.render.AbstractRenderVehicle;
+import com.mrcrayfish.vehicle.common.Seat;
+import com.mrcrayfish.vehicle.entity.VehicleProperties;
 import com.mrcrayfish.vehicle.entity.vehicle.EntityMoped;
+import com.mrcrayfish.vehicle.util.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelChest;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.Calendar;
 
@@ -33,7 +39,7 @@ public class RenderMoped extends AbstractRenderVehicle<EntityMoped>
     {
         Minecraft.getMinecraft().getRenderManager().setDebugBoundingBox(false);
 
-        this.renderDamagedPart(entity, entity.body);
+        this.renderDamagedPart(entity, SpecialModels.MOPED_BODY.getModel());
 
         GlStateManager.pushMatrix();
         {
@@ -53,7 +59,7 @@ public class RenderMoped extends AbstractRenderVehicle<EntityMoped>
             {
                 GlStateManager.translate(0, 0.835, 0.525);
                 GlStateManager.scale(0.8, 0.8, 0.8);
-                renderDamagedPart(entity, entity.handleBar);
+                this.renderDamagedPart(entity, SpecialModels.MOPED_HANDLE_BAR.getModel());
             }
             GlStateManager.popMatrix();
 
@@ -63,7 +69,7 @@ public class RenderMoped extends AbstractRenderVehicle<EntityMoped>
                 GlStateManager.translate(0, -0.12, 0.785);
                 GlStateManager.rotate(-22.5F, 1, 0, 0);
                 GlStateManager.scale(0.9, 0.9, 0.9);
-                Minecraft.getMinecraft().getRenderItem().renderItem(entity.mudGuard, ItemCameraTransforms.TransformType.NONE);
+                this.renderDamagedPart(entity, SpecialModels.MOPED_MUD_GUARD.getModel());
             }
             GlStateManager.popMatrix();
 
@@ -79,7 +85,11 @@ public class RenderMoped extends AbstractRenderVehicle<EntityMoped>
                         GlStateManager.rotate(-frontWheelSpin, 1, 0, 0);
                     }
                     GlStateManager.scale(1.3F, 1.3F, 1.3F);
-                    Minecraft.getMinecraft().getRenderItem().renderItem(entity.wheel, ItemCameraTransforms.TransformType.NONE);
+                    IBakedModel model = RenderUtil.getWheelModel(entity);
+                    if(model != null)
+                    {
+                        RenderUtil.renderColoredModel(model, ItemCameraTransforms.TransformType.NONE, entity.getWheelColor());
+                    }
                 }
                 GlStateManager.popMatrix();
             }
@@ -130,11 +140,23 @@ public class RenderMoped extends AbstractRenderVehicle<EntityMoped>
     @Override
     public void applyPlayerRender(EntityMoped entity, EntityPlayer player, float partialTicks)
     {
-        double offset = 24 * 0.0625 + entity.getMountedYOffset() + player.getYOffset();
-        GlStateManager.translate(0, offset, 0);
-        float currentSpeedNormal = (entity.prevCurrentSpeed + (entity.currentSpeed - entity.prevCurrentSpeed) * partialTicks) / entity.getMaxSpeed();
-        float turnAngleNormal = (entity.prevTurnAngle + (entity.turnAngle - entity.prevTurnAngle) * partialTicks) / 45F;
-        GlStateManager.rotate(turnAngleNormal * currentSpeedNormal * 20F, 0, 0, 1);
-        GlStateManager.translate(0, -offset, 0);
+        int index = entity.getSeatTracker().getSeatIndex(player.getUniqueID());
+        if(index != -1)
+        {
+            VehicleProperties properties = entity.getProperties();
+            Seat seat = properties.getSeats().get(index);
+            Vec3d seatVec = seat.getPosition().addVector(0, properties.getAxleOffset() + properties.getWheelOffset(), 0).scale(properties.getBodyPosition().getScale());
+            seatVec = new Vec3d(-seatVec.x, seatVec.y, seatVec.z);
+            seatVec = seatVec.scale(0.0625);
+            double scale = 32.0 / 30.0;
+            double offsetX = seatVec.x * scale;
+            double offsetY = (seatVec.y + player.getYOffset()) * scale + 24 * 0.0625; //Player is 2 blocks high tall but renders at 1.8 blocks tall
+            double offsetZ = -seatVec.z * scale;
+            GlStateManager.translate(offsetX, offsetY, offsetZ);
+            float currentSpeedNormal = (entity.prevCurrentSpeed + (entity.currentSpeed - entity.prevCurrentSpeed) * partialTicks) / entity.getMaxSpeed();
+            float turnAngleNormal = (entity.prevTurnAngle + (entity.turnAngle - entity.prevTurnAngle) * partialTicks) / 45F;
+            GlStateManager.rotate(turnAngleNormal * currentSpeedNormal * 20F, 0, 0, 1);
+            GlStateManager.translate(-offsetX, -offsetY, -offsetZ);
+        }
     }
 }
