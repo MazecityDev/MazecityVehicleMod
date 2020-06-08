@@ -1,5 +1,4 @@
 package com.mrcrayfish.vehicle.client;
-
 import com.mrcrayfish.obfuscate.client.event.ModelPlayerEvent;
 import com.mrcrayfish.obfuscate.client.event.RenderItemEvent;
 import com.mrcrayfish.vehicle.VehicleConfig;

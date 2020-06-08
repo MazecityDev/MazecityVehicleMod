@@ -1,5 +1,4 @@
 package com.mrcrayfish.vehicle.block;
-
 import com.mrcrayfish.vehicle.entity.EntityPoweredVehicle;
 import com.mrcrayfish.vehicle.init.ModSounds;
 import com.mrcrayfish.vehicle.tileentity.TileEntityBoost;

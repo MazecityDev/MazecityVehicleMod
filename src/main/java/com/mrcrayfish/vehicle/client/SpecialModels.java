@@ -55,6 +55,7 @@ public enum SpecialModels
     GOLF_CART_BODY("golf_cart_body"),
     OFF_ROADER_BODY("off_roader_body"),
     POLICE_ROADER_BODY("police_roader_body"),
+    RAID_ROADER_BODY("raid_roader_body"),
     SAMU_ROADER_BODY("samu_roader_body"),
     FIRE_ROADER_BODY("fire_roader_body"),
     BEAUTIFUL_ROADER_BODY("beautiful_roader_body"),

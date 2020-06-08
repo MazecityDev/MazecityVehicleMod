@@ -103,6 +103,7 @@ public class ClientProxy implements Proxy
         registerVehicleRender(EntityGolfCart.class, new RenderLandVehicleWrapper<>(new RenderGolfCart()));
         registerVehicleRender(EntityOffRoader.class, new RenderLandVehicleWrapper<>(new RenderOffRoader()));
         registerVehicleRender(EntityPoliceRoader.class, new RenderLandVehicleWrapper<>(new RenderPoliceRoader()));
+        registerVehicleRender(EntityRaidRoader.class, new RenderLandVehicleWrapper<>(new RenderRaidRoader()));
         registerVehicleRender(EntitySamuRoader.class, new RenderLandVehicleWrapper<>(new RenderSamuRoader()));
         registerVehicleRender(EntityFireRoader.class, new RenderLandVehicleWrapper<>(new RenderFireRoader()));
         registerVehicleRender(EntityBeautifulRoader.class, new RenderLandVehicleWrapper<>(new RenderBeautifulRoader()));
