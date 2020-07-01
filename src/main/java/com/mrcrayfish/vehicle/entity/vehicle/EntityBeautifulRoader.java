@@ -23,7 +23,7 @@ public class EntityBeautifulRoader extends EntityLandVehicle implements EntityRa
     {
         super(worldIn);
         this.setSize(2F, 1F);
-        this.setMaxSpeed(18F);
+        this.setMaxSpeed(20F);
         this.setFuelCapacity(25000F);
     }
 
