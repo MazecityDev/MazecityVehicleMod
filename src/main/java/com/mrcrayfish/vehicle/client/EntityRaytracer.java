@@ -461,6 +461,20 @@ public class EntityRaytracer
         createKeyPortTransforms(SpecialModels.KEY_HOLE, EntitySamuRoader.class, SamuRoaderParts, SamuRoaderTransformGlobal);
         registerEntityStatic(EntitySamuRoader.class, SamuRoaderParts);
 
+        // Raid-Roader
+        List<MatrixTransformation> RaidRoaderTransformGlobal = Lists.newArrayList();
+        createBodyTransforms(RaidRoaderTransformGlobal, EntityRaidRoader.class);
+        HashMap<RayTracePart, List<MatrixTransformation>> RaidRoaderParts = Maps.newHashMap();
+        createTransformListForPart(SpecialModels.RAID_ROADER_BODY, RaidRoaderParts, RaidRoaderTransformGlobal);
+        createTransformListForPart(SpecialModels.GO_KART_STEERING_WHEEL, RaidRoaderParts, RaidRoaderTransformGlobal,
+                MatrixTransformation.createTranslation(-0.3125, 0.35, 0.2),
+                MatrixTransformation.createRotation(-45, 1, 0, 0),
+                MatrixTransformation.createTranslation(0, -0.02, 0),
+                MatrixTransformation.createScale(0.75));
+        createFuelablePartTransforms(SpecialModels.FUEL_PORT_CLOSED, EntityRaidRoader.class, RaidRoaderParts, RaidRoaderTransformGlobal);
+        createKeyPortTransforms(SpecialModels.KEY_HOLE, EntityRaidRoader.class, RaidRoaderParts, RaidRoaderTransformGlobal);
+        registerEntityStatic(EntityRaidRoader.class, RaidRoaderParts);
+
         // Fire-Roader
         List<MatrixTransformation> FireRoaderTransformGlobal = Lists.newArrayList();
         createBodyTransforms(FireRoaderTransformGlobal, EntityFireRoader.class);

@@ -118,6 +118,7 @@ public class VehicleMod
         registerVehicle("off_roader", EntityOffRoader.class);
         registerVehicle("police_roader", EntityPoliceRoader.class);
         registerVehicle("samu_roader", EntitySamuRoader.class);
+        registerVehicle("raid_roader", EntityRaidRoader.class);
         registerVehicle("fire_roader", EntityFireRoader.class);
         registerVehicle("beautiful_roader", EntityBeautifulRoader.class);
         registerVehicle("tractor", EntityTractor.class);

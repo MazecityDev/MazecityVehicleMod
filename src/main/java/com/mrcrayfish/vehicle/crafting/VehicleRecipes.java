@@ -145,6 +145,15 @@ public class VehicleRecipes
         builder.addMaterial(new ItemStack(ModItems.PANEL, 24));
         mapBuilder.put(EntitySamuRoader.class, builder.build());
 
+        /* Raid-Roader */
+        builder = new Builder();
+        builder.addMaterial(new ItemStack(Items.IRON_INGOT, 300));
+        builder.addMaterial(new ItemStack(Blocks.WOOL, 8, 15));
+        builder.addMaterial(new ItemStack(Blocks.GLASS_PANE, 6));
+        builder.addMaterial(new ItemStack(Items.REDSTONE, 12));
+        builder.addMaterial(new ItemStack(ModItems.PANEL, 24));
+        mapBuilder.put(EntityRaidRoader.class, builder.build());
+
         /* Fire-Roader */
         builder = new Builder();
         builder.addMaterial(new ItemStack(Items.IRON_INGOT, 150));
