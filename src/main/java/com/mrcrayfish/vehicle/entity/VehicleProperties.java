@@ -314,7 +314,7 @@ public class VehicleProperties
         properties.addSeat(new Seat(new Vec3d(-5, 3.5, -18.9)));
         VehicleProperties.setProperties(EntitySamuRoader.class, properties);
 
-        /* RAID Roader */
+        /* Raid Roader */
         properties = new VehicleProperties();
         properties.setAxleOffset(-1.0F);
         properties.setWheelOffset(5.4F);

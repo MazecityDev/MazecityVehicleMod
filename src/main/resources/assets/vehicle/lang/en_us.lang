@@ -89,6 +89,7 @@ entity.vehicle.couch.name=Couch
 entity.vehicle.moped.name=Moped
 entity.vehicle.off_roader.name=Off Roader
 entity.vehicle.police_roader.name=Vehicule de Police
+entity.vehicle.raid_roader.name=Fourgon du RAID
 entity.vehicle.samu_roader.name=Samu
 entity.vehicle.fire_roader.name=Pompier
 entity.vehicle.beautiful_roader.name=Porsche
