@@ -503,6 +503,20 @@ public class EntityRaytracer
         createKeyPortTransforms(SpecialModels.KEY_HOLE, EntityBeautifulRoader.class, BeautifulRoaderParts, BeautifulRoaderTransformGlobal);
         registerEntityStatic(EntityBeautifulRoader.class, BeautifulRoaderParts);
 
+        // Police-Porsche
+        List<MatrixTransformation> PolicePorscheTransformGlobal = Lists.newArrayList();
+        createBodyTransforms(PolicePorscheTransformGlobal, EntityPolicePorsche.class);
+        HashMap<RayTracePart, List<MatrixTransformation>> PolicePorscheParts = Maps.newHashMap();
+        createTransformListForPart(SpecialModels.POLICE_PORSCHE_BODY, PolicePorscheParts, PolicePorscheTransformGlobal);
+        createTransformListForPart(SpecialModels.GO_KART_STEERING_WHEEL, PolicePorscheParts, PolicePorscheTransformGlobal,
+                MatrixTransformation.createTranslation(-0.3125, 0.35, 0.2),
+                MatrixTransformation.createRotation(-45, 1, 0, 0),
+                MatrixTransformation.createTranslation(0, -0.02, 0),
+                MatrixTransformation.createScale(0.75));
+        createFuelablePartTransforms(SpecialModels.FUEL_PORT_CLOSED, EntityPolicePorsche.class, PolicePorscheParts, PolicePorscheTransformGlobal);
+        createKeyPortTransforms(SpecialModels.KEY_HOLE, EntityPolicePorsche.class, PolicePorscheParts, PolicePorscheTransformGlobal);
+        registerEntityStatic(EntityPolicePorsche.class, PolicePorscheParts);
+
         // Tractor
         List<MatrixTransformation> tractorTransformGlobal = Lists.newArrayList();
         createBodyTransforms(tractorTransformGlobal, EntityTractor.class);

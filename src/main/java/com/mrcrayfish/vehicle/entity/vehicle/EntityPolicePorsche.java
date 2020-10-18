@@ -17,15 +17,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 /**
  * Author: MrCrayfish
  */
-public class EntityBeautifulRoader extends EntityLandVehicle implements EntityRaytracer.IEntityRaytraceable
+public class EntityPolicePorsche extends EntityLandVehicle implements EntityRaytracer.IEntityRaytraceable
 {
-    public EntityBeautifulRoader(World worldIn)
+    public EntityPolicePorsche(World worldIn)
     {
         super(worldIn);
         this.setSize(2F, 1F);
         this.setMaxSpeed(22F);
         this.setFuelCapacity(25000F);
-        this.setFuelConsumption(2F);
     }
 
     @Override

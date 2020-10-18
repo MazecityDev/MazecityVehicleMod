@@ -59,6 +59,7 @@ public enum SpecialModels
     FIRE_ROADER_BODY("fire_roader_body"),
     RAID_ROADER_BODY("raid_roader_body"),
     BEAUTIFUL_ROADER_BODY("beautiful_roader_body"),
+    POLICE_PORSCHE_BODY("police_porsche_body"),
     TRACTOR_BODY("tractor_body"),
     TRAILER_BODY("trailer_body"),
     MINI_BUS_BODY("mini_bus_body"),

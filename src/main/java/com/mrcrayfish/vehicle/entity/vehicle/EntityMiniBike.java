@@ -16,9 +16,9 @@ public class EntityMiniBike extends EntityMotorcycle implements IEntityRaytracea
     public EntityMiniBike(World worldIn)
     {
         super(worldIn);
-        this.setMaxSpeed(18F);
+        this.setMaxSpeed(15F);
         this.setTurnSensitivity(12);
-        this.setFuelCapacity(15000F);
+        this.setFuelCapacity(1000F);
         this.setFuelConsumption(0.375F);
     }
 

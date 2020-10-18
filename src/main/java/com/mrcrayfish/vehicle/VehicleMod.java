@@ -121,6 +121,7 @@ public class VehicleMod
         registerVehicle("raid_roader", EntityRaidRoader.class);
         registerVehicle("fire_roader", EntityFireRoader.class);
         registerVehicle("beautiful_roader", EntityBeautifulRoader.class);
+        registerVehicle("police_porsche", EntityPolicePorsche.class);
         registerVehicle("tractor", EntityTractor.class);
         registerVehicle("mini_bus", EntityMiniBus.class);
         registerVehicle("dirt_bike", EntityDirtBike.class);
